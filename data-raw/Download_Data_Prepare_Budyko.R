@@ -1,4 +1,8 @@
 
+
+
+
+
 install.packages("dplyr")
 library(dplyr)
 install.packages("terra")
@@ -7,6 +11,10 @@ install.packages("remotes")
 library(remotes)
 remotes::install_github("https://github.com/geco-bern/FluxDataKit")
 library(FluxDataKit)
+
+#install.packages("rsofun")
+remotes::install_github("geco-bern/rsofun")
+library(rsofun)
 
 library(tidyverse)
 library(readr)
@@ -22,6 +30,9 @@ df_sites <- readr::read_csv("/data_2/FluxDataKit/v3.4/zenodo_upload/fdk_site_inf
     readr::read_csv("/data_2/FluxDataKit/v3.4/zenodo_upload/fdk_site_fullyearsequence.csv"),
     by = "sitename"
   )
+
+
+df_fullyear <- readr::read_csv("/data_2/FluxDataKit/v3.4/zenodo_upload/fdk_site_fullyearsequence.csv")
 
 
 ##ADD CTI Data
