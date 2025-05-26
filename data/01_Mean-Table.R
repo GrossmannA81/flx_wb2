@@ -107,4 +107,28 @@ df_sites <- df_sites |>       #add condensation
   )
 
 
+df_sites <- df_sites |>
+  select(
+    sitename,
+    canopy_height,
+    igbp_land_use,
+    whc,
+    product,
+    mat,
+    p_over_pet,
+    cti,
+    cond_mean_ann,
+    aet,
+    aet_cond,
+    prec,
+    prec_cond,
+    pet_over_prec,
+    pet_over_prec_cond,
+    aet_corr,
+    aet_cond,
+    aet_over_prec,
+    aet_over_prec_cond
+  )
+
+
 readr::write_csv(df_sites, file = here::here("data/df_sites.csv"))
