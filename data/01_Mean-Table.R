@@ -27,6 +27,7 @@ fun_read_onesite <- function(site, path){
 }
 
 
+
 # read all daily data for the selected sites
 daily_data <- purrr::map_dfr(
   df_sites$sitename,
@@ -54,6 +55,9 @@ fun_l_energy_to_et <- function(le, tc, patm){
 }
 
 
+
+
+
 ##Annual Means with latent energy corrected:
 
 annual_means_data <- daily_data |>
@@ -78,17 +82,28 @@ annual_means_data <- daily_data |>
   group_by(sitename) |>
   summarise(
     prec = mean(prec, na.rm = TRUE),
-    aet = mean(aet, na.rm = TRUE),
+    #aet = mean(aet, na.rm = TRUE),
     aet_corr = mean(aet_corr, na.rm = TRUE),
     pet = mean(pet, na.rm = TRUE),
-    pet_over_prec = pet/prec
+    pet_over_prec = pet/prec,
+    aet_over_prec = aet_corr/prec
   )
-
 
 df_sites <- df_sites |>
   left_join(
     annual_means_data,
     by="sitename"
+  )
+
+
+
+df_sites <- df_sites |>       #add condensation
+  mutate(
+    aet_cond = aet_corr + cond_mean_ann,
+    prec_cond = prec + cond_mean_ann,
+    pet_over_prec_cond = pet/prec_cond,
+    aet_over_prec_cond = aet_corr/prec_cond
+    #pet will not be used with corrected le_corr because is only modelled with radiation, temp and pressure
   )
 
 
