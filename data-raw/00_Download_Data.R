@@ -48,4 +48,4 @@ df_sites <- df_sites |>
   dplyr::mutate(cti = extracted_cti[[2]])
 
 
-
+readr::write_csv(df_sites, file = here::here("data/df_sites.csv"))

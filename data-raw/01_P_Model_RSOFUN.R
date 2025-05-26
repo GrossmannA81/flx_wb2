@@ -1,6 +1,10 @@
 
-library(read)
+
 library(rsofun)
+library(purrr)
+library(readr)
+
+
 
 driver <- read_rds("/data_2/FluxDataKit/v3.4/zenodo_upload/rsofun_driver_data_v3.4.2.rds")
 params_modl <- list(

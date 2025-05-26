@@ -34,18 +34,18 @@ daily_data <- purrr::map_dfr(
 )
 
 # Select data sequences ----------------
-daily_data <- daily_data |> # former ddf
-  left_join(
-    df_sites |>
-      select(
-        sitename,
-        year_start = year_start_lecorr,
-        year_end = year_end_lecorr),
-    by = join_by(sitename)
-  ) |>
-  mutate(year = year(TIMESTAMP)) |>
-  filter(year >= year_start & year <= year_end) |>
-  select(-year_start, -year_end, -year)
+# daily_data <- daily_data |> # former ddf
+#   left_join(
+#     df_sites |>
+#       select(
+#         sitename,
+#         year_start = year_start_lecorr,
+#         year_end = year_end_lecorr),
+#     by = join_by(sitename)
+#   ) |>
+#   mutate(year = year(TIMESTAMP)) |>
+#   filter(year >= year_start & year <= year_end) |>
+#   select(-year_start, -year_end, -year)
 
 
 #function for converting latent energy to et
@@ -85,7 +85,11 @@ annual_means_data <- daily_data |>
   )
 
 
+df_sites <- df_sites |>
+  left_join(
+    annual_means_data,
+    by="sitename"
+  )
 
 
-
-
+readr::write_csv(df_sites, file = here::here("data/df_sites.csv"))
