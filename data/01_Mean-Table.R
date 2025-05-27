@@ -107,12 +107,14 @@ df_sites <- df_sites |>       #add condensation
   )
 
 
+# df_sites is main-table for further use with necessary variables::
 df_sites <- df_sites |>
   select(
     sitename,
     canopy_height,
     igbp_land_use,
     whc,
+    koeppen_code,
     product,
     mat,
     p_over_pet,

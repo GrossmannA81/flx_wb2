@@ -1,61 +1,111 @@
 
-library (broom)
+
 library(dplyr)
+
+
+
 
 
 
 ##------------------------Without Condensation::----------------------
 
-## Fit Fu Equation------
-fun_fu_equation <- function(pet_over_prec, omega) {
-  1 + pet_over_prec -(1 + pet_over_prec ^omega)^(1/omega)
+## Fu Equation------
+fun_fu_equation <- function(pet_p, omega) {
+  1 + pet_p -(1 + pet_p ^omega)^(1/omega)
 }
 
+df_budyko <- df_sites |>
+  transmute(
+    sitename,
+    pet_p = pet_over_prec,
+    aet_p = aet_over_prec,
+    pet_p_cond = pet_over_prec_cond,
+    aet_p_cond = aet_over_prec_cond
+  ) |>
+  filter(
+    complete.cases(
+      pet_p,
+      aet_p)
+    )
+
+
+#fit of non-linear equation
 out_nocond <- nls(
-  aet_over_prec ~ 1 + pet_over_prec -(1 + pet_over_prec ^omega)^(1/omega),
-  data = df_sites,
-  start = list(omega = 2)
+  aet_p ~ 1 + pet_p -(1 + pet_p ^omega)^(1/omega),
+  data = df_budyko,
+  start = list(omega = 2)     #non-linear least squares: 2 is start value: essential for convergence
 )
 
-#add residuals to fit---------
-df_nocond_augment <- augment(out_nocond, data = df_sites)
+#add residuals into model df_budyko---------
 
-df_sites <- left_join(
-  df_sites,
-  df_nocond_augment |>
-    select(
-      sitename,
-      resid = .resid
-    ),
-  by = "sitename"
-)
+df_budyko <- df_budyko |>
+  mutate(
+    res = residuals(out_nocond)
+  )
+
 
 
 
 ##-----------------------With Condensation::------------------------
 
 ## Fit Fu Equation------
-fun_fu_equation_cond <- function(pet_over_prec_cond, omega) {
-  1 + pet_over_prec_cond -(1 + pet_over_prec_cond ^omega)^(1/omega)
+fun_fu_equation_cond <- function(pet_p_cond, omega) {
+  1 + pet_p_cond -(1 + pet_p_cond ^omega)^(1/omega)
 }
 
 out_cond <- nls(
-  aet_over_prec_cond ~ 1 + pet_over_prec_cond -(1 + pet_over_prec_cond ^omega)^(1/omega),
-  data = df_sites,
+  aet_p_cond ~ 1 + pet_p_cond -(1 + pet_p_cond ^omega)^(1/omega),
+  data = df_budyko,
   start = list(omega = 2)
 )
 
-df_cond_augment <- augment(out_cond, data = df_sites)
+#add residuals into model df_budyko---------
 
-df_sites <- left_join(
-  df_sites,
-  df_cond_augment |>
-    select(
-      sitename,
-      resid_cond = .resid
-    ),
-  by = "sitename"
-)
+df_budyko <- df_budyko |>
+  mutate(
+    res_cond = residuals(out_nocond)
+  )
+
+readr::write_csv(df_budyko, file = here::here("data/df_budyko.csv"))
+
+# further analysis with df_budyko in ANALYSIS folder
 
 
-readr::write_csv(df_sites, file = here::here("data/df_sites.csv"))
+
+
+
+# Plot --------------
+## Budyko ---------
+gg2 <- adf |>
+  ggplot(
+    aes(
+      x = pet/prec,
+      y = aet/prec
+    )
+  ) +
+  geom_function(fun = fu_equation, args = list(omega = coef(out_nocondensation)), color = "tomato") +
+  geom_point(color = "tomato") +
+  gghighlight(
+    sitename %in% c("DE-Hai", "US-Ton", "FI-Hyy", "US-ICh", "AU-How"),
+    label_key = sitename,
+    use_direct_label = FALSE,
+    unhighlighted_params = list(color = "grey40")
+  ) +
+  geom_label(aes(label = sitename),
+             hjust = 1, vjust = 1, fill = "white", colour = "black", alpha = 0.7) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dotted") +
+  geom_hline(yintercept = 1, linetype = "dotted") +
+  theme_classic() +
+  ylim(0, 2.5) +
+  labs(
+    x = expression(paste("PET/", italic(P))),
+    y = expression(paste("AET/", italic(P)))
+  )
+
+ggsave(here::here("fig/budyko_fluxnet.png"), width = 8, height = 3.5)
+
+## Residuals
+adf |>
+  ggplot() +
+  geom_histogram(aes(res, ..count..), color = "black", fill = "grey70") +
+  theme_classic()
