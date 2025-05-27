@@ -35,8 +35,6 @@ ggsave(here::here("analysis/pics/Budyko_NoCondensation.png"))
 
 
 
-
-
 #-------Plot Budyko WITH condensation::--------
 
 gg_bud_cond <- df_budyko |>
@@ -65,4 +63,32 @@ ggsave(here::here("analysis/pics/Budyko_Condensation.png"))
 
 cowplot::plot_grid(gg_bud_nocond, gg_bud_cond)
 ggsave(here::here("analysis/pics/Budyko_Cond_Comparison.png"))
+
+
+
+
+
+
+#-----------HISTOGRAMS RESIDUALS::---------------------------
+
+
+
+# with Condensation:
+gg_bud_hist_cond <- df_budyko |>
+  ggplot() +
+  geom_histogram(aes(res_cond, ..count..), color = "black", fill = "grey70") +
+  labs(title = "Residuals With Condensation") +
+theme_classic()
+
+
+# whitout Condensation:
+gg_bud_hist_nocond <- df_budyko |>
+  ggplot() +
+  geom_histogram(aes(res, ..count..), color = "black", fill = "grey70") +
+  labs(title = "Residuals No Condensation") +
+theme_classic()
+
+cowplot::plot_grid(gg_bud_hist_nocond, gg_bud_hist_cond)
+
+ggsave(here::here("analysis/pics/Budyko_Residuals_Histograms.png"))
 
