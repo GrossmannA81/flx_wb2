@@ -3,17 +3,6 @@
 library(dplyr)
 
 
-
-
-
-
-##------------------------Without Condensation::----------------------
-
-## Fu Equation------
-fun_fu_equation <- function(pet_p, omega) {
-  1 + pet_p -(1 + pet_p ^omega)^(1/omega)
-}
-
 df_budyko <- df_sites |>
   transmute(
     sitename,
@@ -25,8 +14,22 @@ df_budyko <- df_sites |>
   filter(
     complete.cases(
       pet_p,
-      aet_p)
+      aet_p,
+      pet_p_cond,
+      aet_p_cond
     )
+  )
+
+
+
+
+
+##------------------------Without Condensation::----------------------
+
+## Fu Equation------
+fun_fu_equation <- function(pet_p, omega) {
+  1 + pet_p -(1 + pet_p ^omega)^(1/omega)
+}
 
 
 #fit of non-linear equation
@@ -42,7 +45,6 @@ df_budyko <- df_budyko |>
   mutate(
     res = residuals(out_nocond)
   )
-
 
 
 
@@ -63,7 +65,7 @@ out_cond <- nls(
 
 df_budyko <- df_budyko |>
   mutate(
-    res_cond = residuals(out_nocond)
+    res_cond = residuals(out_cond)
   )
 
 readr::write_csv(df_budyko, file = here::here("data/df_budyko.csv"))
