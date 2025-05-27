@@ -24,7 +24,7 @@ df_budyko <- df_sites |>
 
 
 
-##------------------------Without Condensation::----------------------
+##------------------------Budyko WITHOUT Condensation::----------------------
 
 ## Fu Equation------
 fun_fu_equation <- function(pet_p, omega) {
@@ -48,7 +48,7 @@ df_budyko <- df_budyko |>
 
 
 
-##-----------------------With Condensation::------------------------
+##-----------------------Budyko WITH Condensation::------------------------
 
 ## Fit Fu Equation------
 fun_fu_equation_cond <- function(pet_p_cond, omega) {
@@ -68,9 +68,27 @@ df_budyko <- df_budyko |>
     res_cond = residuals(out_cond)
   )
 
-readr::write_csv(df_budyko, file = here::here("data/df_budyko.csv"))
+
 
 # further analysis with df_budyko in ANALYSIS folder
+
+
+
+##---------------Calculate Delta (Epsilon Deviation)::------------
+
+
+df_budyko <- df_budyko |>
+  mutate(
+    delta_cond   = aet_p_cond - fun_fu_equation_cond(pet_p_cond, omega = coef(out_cond)),
+    delta_nocond = aet_p - fun_fu_equation(pet_p, omega = coef(out_nocond))
+
+  )
+
+
+readr::write_csv(df_budyko, file = here::here("data/df_budyko.csv"))
+
+
+
 
 
 

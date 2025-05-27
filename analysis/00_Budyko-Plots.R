@@ -60,7 +60,7 @@ gg_bud_cond <- df_budyko |>
   )
 
 plot(gg_bud_cond)
-ggsave(here::here("analysis/pics/Budyko_NoCondensation.png"))
+ggsave(here::here("analysis/pics/Budyko_Condensation.png"))
 
 
 cowplot::plot_grid(gg_bud_nocond, gg_bud_cond)
