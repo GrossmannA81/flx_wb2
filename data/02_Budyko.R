@@ -1,6 +1,7 @@
 
 
 library(dplyr)
+library(readr)
 
 
 df_budyko <- df_sites |>
@@ -39,7 +40,7 @@ out_nocond <- nls(
   start = list(omega = 2)     #non-linear least squares: 2 is start value: essential for convergence
 )
 
-#add residuals into model df_budyko---------
+#calculate residuals (only model oriented)---------
 
 df_budyko <- df_budyko |>
   mutate(
@@ -61,7 +62,7 @@ out_cond <- nls(
   start = list(omega = 2)
 )
 
-#add residuals into model df_budyko---------
+#calculate residuals (only model oriented)---------
 
 df_budyko <- df_budyko |>
   mutate(

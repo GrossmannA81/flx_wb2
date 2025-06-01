@@ -1,0 +1,145 @@
+
+
+library(dplyr)
+
+##-------------------HEATMAPS::-----------------------------
+
+#Deviation and Aridity-Classes WITHOUT Condensation
+df_heatmap <- df_budyko |>
+  mutate(cti_class = cut(
+    cti,
+    breaks = c(2, 6, 9, 12, 15),
+    labels = c("low", "medium-low", "medium-high", "high"),
+    right = TRUE
+  )) |>
+  group_by(aridity_class, cti_class) |>
+  summarise(
+    mean_delta_nocond = mean(delta_nocond, na.rm = TRUE),
+    mean_delta_cond = mean(delta_cond, na.rm = TRUE),
+    .groups = "drop"
+    )
+
+
+common_heatmap_scale <- scale_fill_gradient2(
+  low = "darkslategrey",
+  mid = "beige",
+  high = "hotpink4",
+  midpoint = 0,
+  name = expression(epsilon*"′ (Mean Deviation)"),
+  limits = c(-0.4, 1.4),
+  labels = scales::label_number(accuracy = 0.1),
+  #breaks = scales::pretty_breaks(n = 5)
+  breaks = seq(-0.4, 1.4, by = 0.4)
+)
+
+
+gg_cti_heat_nocond <- df_heatmap |>
+  ggplot(
+    aes (
+      x = aridity_class,
+      y = cti_class,
+      fill = mean_delta_nocond)) +
+  geom_tile(color = "white") +
+  common_heatmap_scale +
+  # scale_fill_gradient2(
+  #   low = "darkslategrey",
+  #   mid = "beige",
+  #   high = "hotpink4",
+  #   midpoint = 0,
+  #   name = expression(epsilon*"′ (Mean Deviation)"),
+  #   labels = scales::label_number(accuracy = 0.1),
+  #   breaks = scales::pretty_breaks(n = 5)
+  # ) +
+  labs(
+    x = "Aridity Classes (PET/P)",
+    y = "CTI-Classes",
+    title = " CTI- und Aridity Classes (Cond)"
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = "right",
+    axis.text.x = element_text(angle = 0)
+  )
+
+# plot(gg_cti_heat_nocond)
+#
+# ggsave(here::here("analysis/pics/AI_CTI_Heatmap_Nocond.png"))
+
+
+
+#Deviation and Aridity / CTI WITH Condensation
+gg_cti_heat_cond <- df_heatmap |>
+  ggplot(
+    aes (
+      x = aridity_class,
+      y = cti_class,
+      fill = mean_delta_cond)) +
+  geom_tile(color = "white") +
+  common_heatmap_scale +
+  # scale_fill_gradient2(
+  #   low = "darkslategrey",
+  #   mid = "beige",
+  #   high = "hotpink4",
+  #   midpoint = 0,
+  #   name = expression(epsilon*"′ (Mean Deviation)"),
+  #   labels = scales::label_number(accuracy = 0.1),
+  #   breaks = scales::pretty_breaks(n = 5)
+  # ) +
+  labs(
+    x = "Aridity Classes (PET/P)",
+    y = "CTI-Classes",
+    title = " CTI- und Aridity Classes (NO-Cond)"
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = "right",
+    axis.text.x = element_text(angle = 0)
+  )
+
+# plot(gg_cti_heat_cond)
+#
+# ggsave(here::here("analysis/pics/AI_CTI_Heatmap_Cond.png"))
+
+# legend <- cowplot::get_legend(gg_cti_heat_nocond)
+
+# gg_cti_heat_nocond <- gg_cti_heat_nocond + theme(legend.position = "none")
+# gg_cti_heat_cond <- gg_cti_heat_cond + theme(legend.position = "none")
+
+
+
+gg_cti_heat_Comparison <- cowplot :: plot_grid(
+  gg_cti_heat_nocond,
+  gg_cti_heat_cond,
+  legend,
+  labels = c("A", "B"),
+  ncol = 2
+)
+
+ plot(gg_cti_heat_Comparison)
+
+gg_cti_heat_final <- cowplot::plot_grid(
+  gg_cti_heat_Comparison,
+  legend,
+  rel_widths = c(1, 0.15),
+  ncol = 2
+  )
+
+plot(gg_cti_heat_final)
+
+ggsave(
+  filename = here::here("analysis/pics/AI_CTI_Heatmap_Comparison.png"),
+  plot = gg_cti_heat_final,
+  width = 12,
+  height = 5
+)
+
+
+
+
+
+# Scatterplot CTI and Deviation (No Co)
+ggplot(df_budyko, aes(x = cti, y = delta_nocond)) +
+  geom_point(alpha = 0.7, color = "darkblue") +
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  theme_classic() +
+  labs(x = "CTI", y = expression(Delta), title = "Budyko-Deviation vs. CTI")
