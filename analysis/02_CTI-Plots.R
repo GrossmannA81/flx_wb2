@@ -4,6 +4,7 @@ library(dplyr)
 
 ##-------------------HEATMAPS::-----------------------------
 
+
 #Deviation and Aridity-Classes WITHOUT Condensation
 df_heatmap <- df_budyko |>
   mutate(cti_class = cut(
@@ -28,7 +29,6 @@ common_heatmap_scale <- scale_fill_gradient2(
   name = expression(epsilon*"′ (Mean Deviation)"),
   limits = c(-0.4, 1.4),
   labels = scales::label_number(accuracy = 0.1),
-  #breaks = scales::pretty_breaks(n = 5)
   breaks = seq(-0.4, 1.4, by = 0.4)
 )
 
@@ -41,15 +41,6 @@ gg_cti_heat_nocond <- df_heatmap |>
       fill = mean_delta_nocond)) +
   geom_tile(color = "white") +
   common_heatmap_scale +
-  # scale_fill_gradient2(
-  #   low = "darkslategrey",
-  #   mid = "beige",
-  #   high = "hotpink4",
-  #   midpoint = 0,
-  #   name = expression(epsilon*"′ (Mean Deviation)"),
-  #   labels = scales::label_number(accuracy = 0.1),
-  #   breaks = scales::pretty_breaks(n = 5)
-  # ) +
   labs(
     x = "Aridity Classes (PET/P)",
     y = "CTI-Classes",
@@ -76,15 +67,6 @@ gg_cti_heat_cond <- df_heatmap |>
       fill = mean_delta_cond)) +
   geom_tile(color = "white") +
   common_heatmap_scale +
-  # scale_fill_gradient2(
-  #   low = "darkslategrey",
-  #   mid = "beige",
-  #   high = "hotpink4",
-  #   midpoint = 0,
-  #   name = expression(epsilon*"′ (Mean Deviation)"),
-  #   labels = scales::label_number(accuracy = 0.1),
-  #   breaks = scales::pretty_breaks(n = 5)
-  # ) +
   labs(
     x = "Aridity Classes (PET/P)",
     y = "CTI-Classes",
@@ -98,28 +80,24 @@ gg_cti_heat_cond <- df_heatmap |>
 
 # plot(gg_cti_heat_cond)
 #
-# ggsave(here::here("analysis/pics/AI_CTI_Heatmap_Cond.png"))
+ggsave(here::here("analysis/pics/AI_CTI_Heatmap_Cond.png"))
 
-# legend <- cowplot::get_legend(gg_cti_heat_nocond)
-
-# gg_cti_heat_nocond <- gg_cti_heat_nocond + theme(legend.position = "none")
-# gg_cti_heat_cond <- gg_cti_heat_cond + theme(legend.position = "none")
 
 
 
 gg_cti_heat_Comparison <- cowplot :: plot_grid(
   gg_cti_heat_nocond,
   gg_cti_heat_cond,
-  legend,
   labels = c("A", "B"),
   ncol = 2
 )
 
- plot(gg_cti_heat_Comparison)
+#plot(gg_cti_heat_Comparison)
 
 gg_cti_heat_final <- cowplot::plot_grid(
   gg_cti_heat_Comparison,
-  legend,
+  width = 12,
+  height = 5,
   rel_widths = c(1, 0.15),
   ncol = 2
   )
@@ -136,6 +114,8 @@ ggsave(
 
 
 
+
+###-------------------SCATTERs---------------------------
 
 # Scatterplot CTI and Deviation (No Co)
 ggplot(df_budyko, aes(x = cti, y = delta_nocond)) +
