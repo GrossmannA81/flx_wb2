@@ -5,7 +5,7 @@ library(cowplot)
 df_budyko <- df_budyko |>
   left_join(
     df_sites |>
-      select(sitename, cti, igbp_land_use ),
+      select(sitename, cti, igbp_land_use, canopy_height, whc, mat ),
     by = "sitename"
   )
 
