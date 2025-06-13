@@ -1,12 +1,8 @@
-
-
 library(rsofun)
 library(purrr)
 library(readr)
 
-
-
-driver <- read_rds("/data_2/FluxDataKit/v3.4/zenodo_upload/rsofun_driver_data_v3.4.2.rds")
+driver <- read_rds("~/data_2/FluxDataKit/v3.4/zenodo_upload/rsofun_driver_data_v3.4.2.rds")
 params_modl <- list(
   kphio              = 5.000000e-02, # chosen to be too high for demonstration
   kphio_par_a        =-2.289344e-03,
@@ -24,10 +20,6 @@ output <- rsofun::runread_pmodel_f(
   driver,
   par = params_modl
 )
-
-
-
-library(tidyverse)
 
 get_annual_cond <- function(df){
   adf <- df |>
