@@ -56,11 +56,32 @@ fun_fu_equation_cond <- function(pet_p_cond, omega) {
   1 + pet_p_cond -(1 + pet_p_cond ^omega)^(1/omega)
 }
 
+#Nonlinear modelling (non log which would be lm(log(aet_p_cond) ~log(fun_fu_equation))
 out_cond <- nls(
   aet_p_cond ~ 1 + pet_p_cond -(1 + pet_p_cond ^omega)^(1/omega),
   data = df_budyko,
-  start = list(omega = 2)
+  start = list(omega = 2) #start value of parameter
 )
+
+# > summary(out_cond)
+#
+# Formula: aet_p_cond ~ 1 + pet_p_cond - (1 + pet_p_cond^omega)^(1/omega)
+#
+# Parameters:
+#   Estimate Std. Error t value Pr(>|t|)
+# omega  2.15572    0.08749   24.64   <2e-16 ***
+#   ---
+#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#
+# Residual standard error: 0.2705 on 224 degrees of freedom
+# 0.2705 = sum of squared residuals
+# Number of iterations to convergence: 4
+# Achieved convergence tolerance: 9.234e-07
+#https://www.youtube.com/watch?v=ViWhcq72laU
+
+#> coef(out_cond)
+#omega
+#2.155718
 
 #calculate residuals (only model oriented)---------
 

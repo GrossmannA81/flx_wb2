@@ -13,7 +13,7 @@ df_heatmap <- df_budyko |>
     labels = c("low", "medium-low", "medium-high", "high"),
     right = TRUE
   )) |>
-  group_by(aridity_class, cti_class) |>
+  group_by(aridity_class, cti_class, evaporative_class) |>
   summarise(
     mean_delta_nocond = mean(delta_nocond, na.rm = TRUE),
     mean_delta_cond = mean(delta_cond, na.rm = TRUE),
@@ -123,3 +123,36 @@ ggplot(df_budyko, aes(x = cti, y = delta_nocond)) +
   geom_smooth(method = "lm", se = TRUE, color = "red") +
   theme_classic() +
   labs(x = "CTI", y = expression(Delta), title = "Budyko-Deviation vs. CTI")
+
+
+
+
+
+
+#--------------------Heatmap EVAPORATIVE INDEX and Cond:-------------
+
+gg_cti_heat_cond_EA <- df_heatmap |>
+  ggplot(
+    aes (
+      x = evaporative_class,
+      y = cti_class,
+      fill = mean_delta_cond)) +
+  geom_tile(color = "white") +
+  common_heatmap_scale +
+  labs(
+    x = "Evaporative Classes (AET/P)",
+    y = "CTI-Classes",
+    title = " CTI- und Evaporative Classes (with Condensation)"
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = "right",
+    axis.text.x = element_text(angle = 0)
+  )
+
+#
+plot(gg_cti_heat_cond_EA)
+#
+ggsave(here::here("analysis/pics/EI_CTI_Heatmap_Cond.png"))
+
+

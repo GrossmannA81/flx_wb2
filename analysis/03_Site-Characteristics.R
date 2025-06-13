@@ -10,6 +10,7 @@ library(ggrepel)
 
 pet_p_threshold <- quantile(df_budyko$pet_p, probs = 0.95, na.rm = TRUE)
 
+
 df_facet_map <- df_budyko |>
   select(sitename, pet_p, pet_p_cond, cti, delta_nocond, delta_cond, igbp_land_use) |>
   rename(`No Condensation` = delta_nocond,
@@ -220,8 +221,8 @@ df_landcover_table_summary_NC <- land_use_summary_NC |>
 pet_p_cond_80th <- quantile(df_budyko$pet_p_cond, na.rm = TRUE, probs = 0.8)
 
 df_landcover_WC <- df_budyko |>
-  filter(pet_p_cond >= pet_p_cond_80th) |>
-  select(sitename, igbp_land_use, cti, pet_p, pet_p_cond) |>
+  filter(pet_p_cond >= pet_p_cond_80th, aet_p_cond > 1) |>
+  select(sitename, igbp_land_use, cti, pet_p, pet_p_cond, aet_p_cond) |>
   left_join(df_additional_vars, by = "sitename")
 
 land_use_summary_WC <- df_landcover_WC |>
@@ -236,6 +237,7 @@ df_landcover_WC <- df_landcover_WC |>
 df_landcover_table_detail_WC <- df_landcover_WC |>
   arrange(desc(pet_p_cond)) |>
   mutate(
+    EI_cond = round (aet_p_cond, 3),
     AI_cond = round(pet_p_cond, 3),
     CTI     = round(cti, 3),
     Canopy = round (canopy_height, 2),
@@ -246,6 +248,7 @@ df_landcover_table_detail_WC <- df_landcover_WC |>
   ) |>
   select(
     # AI,
+    EI_cond,
     AI_cond,
     LandCover = igbp_land_use,
     CTI,
@@ -338,17 +341,19 @@ names(rast_pelletier_df)[3] <- "thickness"
 #
 #
 #
-# plot(rast_pelletier_avg, main = "Pelletier Raster + High Aridity Sites")
-# points(df_landcover_table_detail_WC$lon, df_landcover_table_detail_WC$lat, pch = 19, col = "red")
-# # text(df_landcover_table_detail_WC$lon, df_landcover_table_detail_WC$lat,
-# #      labels = df_landcover_table_detail_WC$sitename, pos = 3, cex = 0.6)
-#
-#
-# plot(rast_pelletier_b_ll, main = "Pelletier Raster + High Aridity Sites")
-# points(df_landcover_table_detail_WC$lon, df_landcover_table_detail_WC$lat, pch = 19, col = "red")
-# # text(df_landcover_table_detail_WC$lon, df_landcover_table_detail_WC$lat,
-# #      labels = df_landcover_table_detail_WC$sitename, pos = 3, cex = 0.6)
-#
+plot(rast_pelletier_avg, main = "Pelletier Raster + High Aridity Sites")
+points(df_landcover_table_detail_WC$lon, df_landcover_table_detail_WC$lat, pch = 19, col = "red")
+# text(df_landcover_table_detail_WC$lon, df_landcover_table_detail_WC$lat,
+#      labels = df_landcover_table_detail_WC$sitename, pos = 3, cex = 0.6)
+
+
+
+
+plot(rast_pelletier_b_ll, main = "Pelletier Raster + High Aridity Sites")
+points(df_landcover_table_detail_WC$lon, df_landcover_table_detail_WC$lat, pch = 19, col = "red")
+# text(df_landcover_table_detail_WC$lon, df_landcover_table_detail_WC$lat,
+#      labels = df_landcover_table_detail_WC$sitename, pos = 3, cex = 0.6)
+
 
 
 # AUSTRALIA---------------------------------------------------------------------
