@@ -157,27 +157,32 @@ gg2 <- adf_cond |>
   ggplot(
     aes(
       x = pet_p,
-      y = aet_p
+      y = aet_p,
+      color = cti
     )
   ) +
   geom_function(fun = fu_equation, args = list(omega = coef(out_cond)), color = "tomato") +
-  geom_point(color = "tomato") +
-  gghighlight(
-    sitename %in% c("DE-Hai", "US-Ton", "FI-Hyy", "US-ICh", "AU-How"),
-    label_key = sitename,
-    use_direct_label = FALSE,
-    unhighlighted_params = list(color = "grey40")
-  ) +
-  geom_label(aes(label = sitename),
-             hjust = 1, vjust = 1, fill = "white", colour = "black", alpha = 0.7) +
+  geom_point() +
+  scale_color_viridis_c(option = "B", direction = -1) +
+  # khroma::scale_color_romaO() +
+  # gghighlight(
+  #   sitename %in% c("DE-Hai", "US-Ton", "FI-Hyy", "US-ICh", "AU-How"),
+  #   label_key = sitename,
+  #   use_direct_label = FALSE,
+  #   unhighlighted_params = list(color = "grey40")
+  # ) +
+  # geom_label(aes(label = sitename),
+  #            hjust = 1, vjust = 1, fill = "white", colour = "black", alpha = 0.7) +
   geom_abline(slope = 1, intercept = 0, linetype = "dotted") +
   geom_hline(yintercept = 1, linetype = "dotted") +
   theme_classic() +
-  ylim(0, 2.5) +
+  ylim(0, 1.8) +
   labs(
     x = expression(paste("PET/", italic(P))),
     y = expression(paste("AET/", italic(P)))
   )
+
+gg2
 
 ggsave(here::here("fig/budyko_fluxnet.png"), width = 8, height = 3.5)
 
@@ -235,12 +240,11 @@ rf_model <- train(
   method = "ranger",
   trControl = ctrl,
   tuneGrid = expand.grid(
-    .mtry = 3,  # c(2, 3),
-    .min.node.size = 7, # c(3, 5, 7, 9),
+    .mtry = 3, #c(2, 3),
+    .min.node.size = 3, #c(3, 5, 7, 9),
     .splitrule = "extratrees" # c("extratrees", "variance")
     ),
-  metric = "RMSE",         # optimize for AUC
-  tuneLength = 5          # try 5 different mtry values
+  metric = "RMSE",
 )
 
 # The final values used for the model were mtry = 3, splitrule = extratrees and min.node.size = 7.
@@ -298,6 +302,7 @@ adf_cond_binned <- adf_cond |>
   group_by(cti_bin, pet_p_bin) |>
   summarise(
     res = mean(res),
+    count = n(),
     .groups = "drop"
   )
 
@@ -332,3 +337,25 @@ gg_cti_heat_nocond <- adf_cond_binned |>
   )
 
 gg_cti_heat_nocond
+
+gg_counts <- adf_cond_binned |>
+  ggplot(
+    aes (
+      x = pet_p_bin,
+      y = cti_bin,
+      fill = count)) +
+  scale_fill_viridis_c(breaks = seq(0, 13, by = 1)) +
+  geom_tile(color = "white") +
+  labs(
+    x = "Aridity Classes (PET/P)",
+    y = "CTI-Classes",
+    title = "Residuals versus aridity and topography"
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = "right",
+    axis.text.x = element_text(angle = 0)
+  )
+
+gg_counts
+
