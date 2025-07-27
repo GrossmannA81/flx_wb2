@@ -1,4 +1,54 @@
 
+
+df_facet_map <- df_budyko |>
+  select(sitename, pet_p_cond, cti, delta_cond) |>
+  rename(
+    `PET/P` = pet_p_cond,
+    delta = delta_cond
+  )
+
+gg_cti_ai_diagram <- df_facet_map |>
+  ggplot(aes(x = `PET/P`, y = cti)) +
+  geom_point(aes(color = delta), size = 2) +
+  scale_color_gradient2(
+    low = "darkslategrey",
+    mid = "beige",
+    high = "hotpink4",
+    midpoint = 0,
+    limits = c(-0.4, 1.4),
+    breaks = seq(-0.4, 1.4, by = 0.4),
+    labels = scales::label_number(accuracy = 0.1),
+    name = expression(epsilon*"′ (Deviation)")
+  ) +
+  labs(
+    y = "CTI (Compound Topographic Index)",
+    x = "Aridity (PET / P)",
+    title = "Deviation from Budyko Curve",
+    color = expression(epsilon*"′")
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = "right"
+  )
+
+
+# Show plot
+plot(gg_cti_ai_diagram)
+
+# Save plot
+ggsave(
+  filename = here::here("analysis/pics/AI_CTI_Diagram.png"),
+  plot = gg_cti_ai_diagram,
+  width = 10,
+  height = 6
+)
+
+
+
+
+
+
+
 ###-------------------CTI and Aridity Deviation and Landcovertypes -  facet Heatmap---------------------------
 
 
@@ -291,9 +341,9 @@ write_xlsx(
 
 
 
-###----------------------------PLOTS---------------------------
+###----------------------------PLOTS-PELLETIER:--------------------------
 
-##PELLETIER:
+
 
 library(terra)
 install.packages("sf")
@@ -307,6 +357,9 @@ rast_pelletier_hs_bv <- rast("/data/archive/soil_pelletier_2016/data/Global_Soil
 rast_pelletier_b_ll <- rast ("/data/archive/soil_pelletier_2016/data/Global_Soil_Regolith_Sediment_1304/data/upland_valley-bottom_and_lowland_sedimentary_deposit_thickness.tif")
 
 rast_pelletier_avg <- rast ("/data/archive/soil_pelletier_2016/data/Global_Soil_Regolith_Sediment_1304/data/average_soil_and_sedimentary-deposit_thickness.tif")
+
+# use terra library to extract from raster
+extract()
 
 plot(rast_pelletier_b_ll)
 

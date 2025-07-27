@@ -16,6 +16,7 @@ library(FluxDataKit)
 remotes::install_github("geco-bern/rsofun")
 library(rsofun)
 
+install.packages("tidyverse")
 library(tidyverse)
 library(readr)
 

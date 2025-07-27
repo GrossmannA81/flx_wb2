@@ -5,75 +5,623 @@ library(cowplot)
 df_budyko <- df_budyko |>
   left_join(
     df_sites |>
-      select(sitename, cti, igbp_land_use, canopy_height, whc, mat ),
+      select(sitename, cti, igbp_land_use, canopy_height, whc ),
     by = "sitename"
   )
 
+
+df_budyko <- df_budyko |>
+  mutate(
+    aridity_class = factor(
+      cut(pet_p_cond,
+          breaks = c(-Inf, 1, 2, 4, Inf),
+          labels = c("H", "SH", "SA", "A")),
+      levels = c("H", "SH", "SA", "A")
+    ),
+    cti_class = factor(case_when(
+      cti < 4.826303 ~ "CTI Low",
+      cti >= 4.826303 & cti < 6.339016 ~ "CTI Med",
+      cti >= 6.339016 ~ "CTI High"
+    ), levels = c("CTI Low", "CTI Med", "CTI High"))
+  )
 
 
 
 
 ####----------------BOXPLOTS::---------------------------------------
-#Boxplot of Aridity Classes and Deviations without Condensation
 
-df_budyko <- df_budyko |>
-  mutate(
-    aridity_class = cut(pet_p,
-                        breaks = c(-Inf, 1, 2, 4, Inf),
-                        labels = c("H", "SH", "SA", "A")
-    )
+
+
+ai_ylim_range_residuals <- range(df_budyko$res,df_budyko$res_corr, df_budyko$res_cond, df_budyko$res_corr_cond, na.rm = TRUE)
+ai_cols <- RColorBrewer::brewer.pal(4, "YlOrRd")
+names(cols) <- c("H", "SH", "SA", "A")
+
+
+#Boxplot of Aridity Classes and Deviations WITHOUT Condensation - LE_F_MDS
+ai_nocond <- df_budyko |>
+  ggplot(aes(x = aridity_class, y = res, fill = aridity_class)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.7, width = 0.5) +
+  geom_jitter(width = 0.2, alpha = 0.4, size = 1, color = "black") +
+  coord_cartesian(ylim = ai_ylim_range_residuals) +
+  theme_classic(base_size = 12) +
+  theme(
+    legend.position = "none",
+    axis.title = element_text(size = 12),  # Axis title size
+    axis.text = element_text(size = 10),   # Axis tick label size
+    plot.title = element_text(size = 13, face = "bold")  # Title size
+  ) +
+  labs(
+    x = NULL,
+    y = expression(epsilon * "'"),
+    title = "No Cond | LE_F_MDS") +
+  scale_fill_manual(
+    values = ai_cols,
+    labels = c(
+      "H" = "H = Humid",
+      "SH" = "SH = Semi-Humid",
+      "SA" = "SA = Semi-Arid",
+      "A" = "A = Arid"
+    ),
+    name = "Aridity Class"
   )
 
-ylim_range <- range(df_budyko$delta_nocond, df_budyko$delta_cond, na.rm = TRUE)
 
-#Boxplot of Aridity Classes and Deviations without Condensation
-gg_ai_nocond <- df_budyko |>
-  ggplot(aes(x = aridity_class, y = delta_nocond, fill = aridity_class)) +
+
+#Boxplot of Aridity Classes and Deviations WITHOUT Condensation - LE_CORR
+ai_nocond_corr <- df_budyko |>
+  ggplot(aes(x = aridity_class, y = res_corr, fill = aridity_class)) +
   geom_boxplot(outlier.shape = NA, alpha = 0.7, width = 0.5) +
   geom_jitter(width = 0.2, alpha = 0.4, size = 1, color = "black") +
-  coord_cartesian(ylim = ylim_range) +   # hier die y-Achse setzen
-  theme_classic() +
-  theme(legend.position = "none") +       # Legende ausblenden
+  coord_cartesian(ylim = ai_ylim_range_residuals) +
+  theme_classic(base_size = 12) +
+  theme(
+    legend.position = "none",
+    axis.title = element_text(size = 12),  # Axis title size
+    axis.text = element_text(size = 10),   # Axis tick label size
+    plot.title = element_text(size = 13, face = "bold")  # Title size
+  ) +
   labs(
-    x = "Aridity Classes",
-    y = expression(Delta),
-    title = "Budyko-Deviation accross AI (WITHOUT Condensation)") +
-  scale_fill_brewer(palette = "YlOrRd", direction = -1)
+    x = NULL,
+    y = expression(epsilon * "'"),
+    title = "No Cond | LE_CORR") +
+  scale_fill_manual(
+    values = RColorBrewer::brewer.pal(4, "YlOrRd"),
+    labels = c(
+      "H" = "H = Humid",
+      "SH" = "SH = Semi-Humid",
+      "SA" = "SA = Semi-Arid",
+      "A" = "A = Arid"
+    ),
+    name = "Aridity Class"
+  )
 
-ggsave(here::here("analysis/pics/AI_Boxplot_NoCondensation.png"))
 
 
-#Boxplot of Aridity Classes and Deviations with Condensation
-gg_ai_cond <- df_budyko |>
-  ggplot(aes(x = aridity_class, y = delta_cond, fill = aridity_class)) +
+#Boxplot of Aridity Classes and Deviations WITH Condensation and LE_F_MDS
+
+ai_cond <- df_budyko |>
+  ggplot(aes(x = aridity_class, y = res_cond, fill = aridity_class)) +
   geom_boxplot(outlier.shape = NA, alpha = 0.7, width = 0.5) +
   geom_jitter(width = 0.2, alpha = 0.4, size = 1, color = "black") +
-  coord_cartesian(ylim = ylim_range) +   # gleiche y-Achse
-  theme_classic() +
-  theme(legend.position = "none") +       # Legende auch hier aus
+  coord_cartesian(ylim = ai_ylim_range_residuals) +
+  theme_classic(base_size = 12) +
+  theme(
+    legend.position = "none",
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10),
+    plot.title = element_text(size = 13, face = "bold")
+  ) +
   labs(
-    x = "Aridity Classes",
-    y = expression(Delta),
-    title = "Budyko-Deviation accross AI (WITH Condensation)") +
-  scale_fill_brewer(palette = "YlOrRd", direction = -1)
+    x = NULL,
+    y = expression(epsilon * "'"),
+    title = "Cond | LE_F_MDS") +
+  scale_fill_manual(
+    values = RColorBrewer::brewer.pal(4, "YlOrRd"),
+    labels = c(
+      "H" = "H = Humid",
+      "SH" = "SH = Semi-Humid",
+      "SA" = "SA = Semi-Arid",
+      "A" = "A = Arid"
+    ),
+    name = "Aridity Class"
+  )
 
-ggsave(here::here("analysis/pics/AI_BoxplotCondensation.png"))
 
-gg_ai_combined <- cowplot::plot_grid(
-  gg_ai_nocond,
-  gg_ai_cond,
-  labels = c("A", "B"),     # optionale Beschriftung
+
+#Boxplot of Aridity Classes and Deviations WITH Condensation and LE_CORR
+ai_cond_corr <- df_budyko |>
+  ggplot(aes(x = aridity_class, y = res_corr_cond, fill = aridity_class)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.7, width = 0.5) +
+  geom_jitter(width = 0.2, alpha = 0.4, size = 1, color = "black") +
+  coord_cartesian(ylim = ai_ylim_range_residuals) +
+  theme_classic(base_size = 12) +
+  theme(
+    legend.position = "none",
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10),
+    plot.title = element_text(size = 13, face = "bold")
+  ) +
+  labs(
+    x = NULL,
+    y = expression(epsilon * "'"),
+    title = "Cond | LE_CORR") +
+
+  scale_fill_manual(
+    values = RColorBrewer::brewer.pal(4, "YlOrRd"),
+    labels = c(
+      "H" = "H = Humid",
+      "SH" = "SH = Semi-Humid",
+      "SA" = "SA = Semi-Arid",
+      "A" = "A = Arid"
+    ),
+    name = "Aridity Class"
+  )
+
+
+
+
+
+
+
+#Plot:
+
+ai_legend <- cowplot::get_legend(
+  ai_nocond + theme(legend.position = "bottom")
+)
+
+ai_combined <- cowplot::plot_grid(
+  ai_nocond + theme(legend.position = "none"),
+  ai_nocond_corr + theme(legend.position = "none"),
+  ai_cond+ theme(legend.position = "none"),
+  ai_cond_corr + theme(legend.position = "none"),
+  labels = c("A", "B", "C", "D"),
   ncol = 2
 )
 
+ai_title <- cowplot::ggdraw()+
+  cowplot::draw_label(
+    "Aridity Classes and Deviations - Boxplots",
+    fontface = "bold",
+    size= 16,
+    x= 0.5,
+    hjust= 0.5
+  )
 
-ggsave(
-  filename = here::here("analysis/pics/AI_Cond_Comparison.png"),
-  plot = gg_ai_combined,
-  width = 10,
-  height = 5
+ai_combined_final <- cowplot::plot_grid(
+  ai_title,
+  ai_combined,
+  ai_legend,
+  ncol = 1,
+  rel_heights = c(0.1, 1, 0.1)
+)
+
+print(ai_combined_final)
+
+
+ggsave(here::here("analysis/pics/AI_Boxplot_ALL.png"))
+
+
+
+
+####-------------------------------Boxplots high and low AI and CTI-----------------------------------------------------------
+
+
+#
+#   ai_cti_plot <- df_budyko |>
+#     filter(cti_class %in% c("CTI Low", "CTI High")) |>
+#     mutate(
+#       aridity_class_simple = case_when(
+#         aridity_class %in% c("H", "SH") ~ "AI Low",
+#         aridity_class %in% c("SA", "A") ~ "AI High"
+#       ),
+#       group_simple = paste(cti_class, aridity_class_simple, sep = " & ")
+#       )
+#
+#
+# ai_cti <- ggplot( ai_cti_plot, aes(x = group_simple, y = res_cond, fill = group_simple)) +
+#   geom_boxplot(outlier.shape = NA, alpha = 0.7) +
+#   geom_jitter(width = 0.2, alpha = 0.4, size = 1, color = "black") +
+#   theme_classic() +
+#   labs(
+#     x = "CTI and Aridity Groups",
+#     y = expression(epsilon * "'"),
+#     title = "Budyko Deviation by CTI and Aridity (PET/P)"
+#   ) +
+#   scale_fill_brewer(palette = "Set2") +
+#   theme(axis.text.x = element_text(hjust = 1))
+#
+#
+#
+# ai_cti_corr <- ggplot( ai_cti_plot, aes(x = group_simple, y = res_corr_cond, fill = group_simple)) +
+#   geom_boxplot(outlier.shape = NA, alpha = 0.7) +
+#   geom_jitter(width = 0.2, alpha = 0.4, size = 1, color = "black") +
+#   theme_classic() +
+#   labs(
+#     x = "CTI and Aridity Groups",
+#     y = expression(epsilon * "'"),
+#     title = "Budyko Deviation by CTI and Aridity (PET/P)"
+#   ) +
+#   scale_fill_brewer(palette = "Set2") +
+#   theme(axis.text.x = element_text(hjust = 1))
+#
+#
+# plot (ai_cti_corr)
+
+
+
+
+
+##Old:
+#
+#
+#
+# ggplot(df_budyko, aes(x = group, y = res_corr, fill = group)) +
+#   geom_boxplot(outlier.shape = NA, alpha = 0.7) +
+#   geom_jitter(width = 0.2, alpha = 0.4, size = 1, color = "black") +
+#   theme_classic() +
+#   labs(
+#     x = "CTI and Aridity Groups",
+#     y = expression (epsilon * "'"),
+#     title = "Budyko Deviation by CTI and Aridity (PET/P)"
+#   ) +
+#   scale_fill_brewer(palette = "Set2") +
+#   theme(axis.text.x = element_text( hjust = 1))
+#
+# ggsave(
+#   filename = here::here("analysis/pics/BoxPlot_hig_low_variables.png"),
+#   plot = gg_ai_combined,
+#   width = 10,
+#   height = 5
+# )
+
+
+#-------------------------------HEATMAP all sites-----------------------------------------------------------
+
+#all with condensation
+
+
+library(patchwork)
+library(cowplot)
+library(ggplot2)
+
+df_hm_bin1 <- df_budyko |>
+  # filter(!is.na(res_cond)) |>
+  group_by(cti_class, aridity_class) |>
+  summarise(
+    mean_res = mean(res, na.rm = TRUE),
+#    count = n(),
+    .groups = "drop"
+  ) |>
+  complete(
+    cti_class = factor(c("CTI Low", "CTI Med", "CTI High"),
+                       levels = c("CTI Low", "CTI Med", "CTI High")),
+    aridity_class = factor(c("H", "SH", "SA", "A"),
+                           levels = c("H", "SH", "SA", "A")),
+    fill = list(mean_res = NA)
+  )
+
+df_hm_bin2 <- df_budyko |>
+  #  filter(!is.na(res_corr_cond)) |>
+  group_by(cti_class, aridity_class) |>
+  summarise(
+    mean_res_corr = mean(res_corr, na.rm = TRUE),
+#    count = n(),
+    .groups = "drop"
+  ) |>
+  complete(
+    cti_class = factor(c("CTI Low", "CTI Med", "CTI High"),
+                       levels = c("CTI Low", "CTI Med", "CTI High")),
+    aridity_class = factor(c("H", "SH", "SA", "A"),
+                           levels = c("H", "SH", "SA", "A")),
+    fill = list(mean_res_corr = NA)
   )
 
 
-#------------------------------------------------------------------------------------------
+df_hm_bin3 <- df_budyko |>
+ # filter(!is.na(res_cond)) |>
+  group_by(cti_class, aridity_class) |>
+  summarise(
+    mean_res_cond = mean(res_cond, na.rm = TRUE),
+#    count = n(),
+    .groups = "drop"
+  ) |>
+  complete(
+    cti_class = factor(c("CTI Low", "CTI Med", "CTI High"),
+                       levels = c("CTI Low", "CTI Med", "CTI High")),
+    aridity_class = factor(c("H", "SH", "SA", "A"),
+                           levels = c("H", "SH", "SA", "A")),
+    fill = list(mean_res_cond = NA)
+  )
 
+df_hm_bin4 <- df_budyko |>
+#  filter(!is.na(res_corr_cond)) |>
+  group_by(cti_class, aridity_class) |>
+  summarise(
+    mean_res_corr_cond = mean(res_corr_cond, na.rm = TRUE),
+#    count = n(),
+    .groups = "drop"
+  ) |>
+  complete(
+    cti_class = factor(c("CTI Low", "CTI Med", "CTI High"),
+                       levels = c("CTI Low", "CTI Med", "CTI High")),
+    aridity_class = factor(c("H", "SH", "SA", "A"),
+                           levels = c("H", "SH", "SA", "A")),
+    fill = list(mean_res_corr_cond = NA)
+  )
+
+
+
+
+
+#set limits to prevent outliers from influencing resudial scale / distribution
+res_limits <- df_budyko |>
+  summarise(
+    lower = quantile(res, 0.05, na.rm = TRUE),
+    upper = quantile(res, 0.95, na.rm = TRUE)
+  )
+
+common_heatmap_scale <- scale_fill_gradient2(
+  low = "darkslategrey",
+  mid = "beige",
+  high = "hotpink4",
+  midpoint = 0,
+  name = expression(epsilon*"′"),
+  limits = c(res_limits$lower, res_limits$upper),
+  labels = scales::label_number(accuracy = 0.1),
+  breaks = waiver (),#seq(-0.3, 0.3, by = 0.1),
+  na.value = "white"
+)
+
+
+heatmap_bin1 <- ggplot(df_hm_bin1, aes(
+  x = aridity_class, y = cti_class, fill = mean_res)) +
+  geom_tile(color = "white") +
+#  geom_text(aes(label = ifelse(count == 0, "NA", count)), size = 3) +
+  common_heatmap_scale +
+  labs(title = "No Cond | LE_F_MDS", x = "Aridity Class", y = "CTI Class") +
+  theme_classic()+
+  theme(legend.position = "none")
+
+
+
+heatmap_bin2 <- ggplot(df_hm_bin2, aes(
+  x = aridity_class, y = cti_class, fill = mean_res_corr)) +
+  geom_tile(color = "white") +
+#  geom_text(aes(label = ifelse(count == 0, "NA", count)), size = 3) +
+  common_heatmap_scale +
+  labs(title = "No Cond | LE_CORR", x = "Aridity Class", y = "CTI Class") +
+  theme_classic()+
+  theme(legend.position = "none")
+
+
+heatmap_bin3 <- ggplot(df_hm_bin3, aes(
+  x = aridity_class, y = cti_class, fill = mean_res_cond)) +
+  geom_tile(color = "white") +
+#  geom_text(aes(label = ifelse(count == 0, "NA", count)), size = 3) +
+  common_heatmap_scale +
+  labs(title = "Cond | LE_F_MDS", x = "Aridity Class", y = "CTI Class") +
+  theme_classic()+
+  theme(legend.position = "none")
+
+
+
+heatmap_bin4 <- ggplot(df_hm_bin4, aes(
+  x = aridity_class, y = cti_class, fill = mean_res_corr_cond)) +
+  geom_tile(color = "white") +
+#  geom_text(aes(label = ifelse(count == 0, "NA", count)), size = 3) +
+  common_heatmap_scale +
+  labs(title = "Cond | LE_CORR", x = "Aridity Class", y = "CTI Class") +
+  theme_classic()+
+  theme(legend.position = "none")
+
+
+
+legend <- cowplot::get_legend(
+  ggplot(df_hm_bin1, aes(
+    x = aridity_class, y = cti_class, fill = mean_res)) +
+    geom_tile() +
+    common_heatmap_scale +
+    theme(legend.position = "right")  # Legende wird nur zum extrahieren angezeigt
+)
+
+heatmap_grid_only <- cowplot::plot_grid(
+  heatmap_bin1,
+  heatmap_bin2,
+  heatmap_bin3,
+  heatmap_bin4,
+  ncol = 2,
+  labels = NULL
+)
+
+
+plot_hm_grid <- cowplot::plot_grid(
+  heatmap_grid_only,
+  legend,
+  ncol = 2,
+  rel_widths = c(1, 0.15)
+  )
+
+plot_hm_title <- cowplot::ggdraw() +
+  cowplot::draw_label("Heatmaps of Deviations with CTI- and Aricity Classes", fontface = "bold", size = 16, x = 0.5, hjust = 0.5)
+
+
+plot_hm_final <- cowplot::plot_grid(
+  plot_hm_title,
+  plot_hm_grid,
+  ncol = 1,
+  rel_heights = c(0.1,1)
+)
+
+
+print(plot_hm_final)
+
+
+ggsave(
+  filename = here::here("analysis/pics/Heatmap_ALL.png"),
+  plot = plot_hm_final,
+  width = 10,
+  height = 5
+)
+
+
+
+
+
+# Heatmap zeichnen
+# gg_cti_heat_custom <- ggplot(df_budyko_binned, aes(
+#   x = aridity_class,
+#   y = cti_class,
+#   fill = mean_res)) +
+#   geom_tile(color = "white") +
+#   geom_text(aes(label = ifelse(count == 0, "NA", count)), color = "black", size = 3) +
+#   scale_fill_gradient2(
+#     low = "darkslategrey",
+#     mid = "beige",
+#     high = "hotpink4",
+#     midpoint = 0,
+#     name = expression(epsilon*"′ (Mean Deviation)"),
+#     limits = c(-0.3, 0.3),
+#     labels = scales::label_number(accuracy = 0.1),
+#     breaks = seq(-0.3, 0.3, by = 0.1),
+#     na.value = "grey90"  # NA-Zellen grau einfärben
+#   ) +
+#   labs(
+#     x = "Aridity Class (PET/P Condensed)",
+#     y = "CTI Class",
+#     title = "Mean Residuals by Aridity and Topography"
+#   ) +
+#   theme_classic() +
+#   theme(
+#     legend.position = "right",
+#     axis.text.x = element_text(angle = 0)
+#   )
+#
+# gg_cti_heat_custom
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+# df_budyko_binned <- df_budyko |>
+#   mutate(
+#     cti_bin = factor(cti_class, levels = c("CTI Low", "CTI Med", "CTI High")),
+#     pet_p_bin = aridity_class
+#   ) |>
+#   group_by(cti_bin, pet_p_bin) |>
+#   summarise(
+#     mean_res = mean(delta_cond, na.rm = TRUE),
+#     count = n(),
+#     .groups = "drop"
+#   ) |>
+#   complete(cti_bin, pet_p_bin, fill = list(mean_res = NA, count = 0))
+#
+# gg_cti_heat_custom <- ggplot(df_budyko_binned, aes(
+#   x = aridity_class,
+#   y = cti_class,
+#   fill = mean_res)) +
+#   geom_tile(color = "white") +
+#   geom_text(aes(label = count), color = "black", size = 3) +
+#   common_heatmap_scale +
+#   labs(
+#     x = "Aridity Class (PET/P Condensed)",
+#     y = "CTI Class",
+#     title = "Mean Residuals by Aridity and Topography"
+#   ) +
+#   theme_classic() +
+#   theme(
+#     legend.position = "right",
+#     axis.text.x = element_text(angle = 0)
+#   )
+#
+#
+# gg_cti_heat_custom
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+# df_budyko_binned <- df_budyko |>
+#   mutate(
+#     cti_bin = cut(
+#       cti,
+#       breaks = quantile(cti, probs = seq(0, 1, 1/5), na.rm = TRUE),
+#       include.lowest = TRUE
+#     ),
+#     pet_p_bin = cut(
+#       pet_p,
+#       breaks = {
+#         b<- quantile(pet_p, probs = seq(0, 1, 1/5), na.rm = TRUE)
+#         b[length(b)] <- 4.12
+#         c(b[-length(b)], Inf)
+#       },
+#       include.lowest = TRUE)
+#   ) |>
+#   group_by(cti_bin, pet_p_bin) |>
+#   summarise(
+#     mean_res = mean(delta_cond, na.rm = TRUE),
+#     count = n(),
+#     .groups = "drop"
+#   )
+#
+#
+# common_heatmap_scale <- scale_fill_gradient2(
+#   low = "darkslategrey",
+#   mid = "beige",
+#   high = "hotpink4",
+#   midpoint = 0,
+#   name = expression(epsilon*"′ (Mean Deviation)"),
+#   limits = c(-0.3, 0.3),
+#   labels = scales::label_number(accuracy = 0.1),
+#   breaks = seq(-0.3, 0.3, by = 0.1)
+# )
+#
+#
+# gg_cti_heat_custom <- df_budyko_binned |>
+#   ggplot(
+#     aes(
+#       x = pet_p_bin,
+#       y = cti_bin,
+#       fill = mean_res)) +
+#   geom_tile(color = "white") +
+#   geom_text(aes(label = count), color = "black", size = 3) +
+#   common_heatmap_scale +
+#   labs(
+#     x = "Aridity Classes (PET/P)",
+#     y = "CTI Classes",
+#     title = "Residuals vs. Aridity and Topography"
+#   ) +
+#   theme_classic() +
+#   theme(
+#     legend.position = "right",
+#     axis.text.x = element_text(angle = 0)
+#   )
+#
+# gg_cti_heat_custom
+#

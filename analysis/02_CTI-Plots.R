@@ -6,34 +6,44 @@ library(dplyr)
 
 
 #Deviation and Aridity-Classes WITHOUT Condensation
-df_heatmap <- df_budyko |>
-  mutate(cti_class = cut(
-    cti,
-    breaks = c(2, 6, 9, 12, 15),
-    labels = c("low", "medium-low", "medium-high", "high"),
-    right = TRUE
-  )) |>
-  group_by(aridity_class, cti_class, evaporative_class) |>
+# df_heatmap <- df_budyko |>
+#   mutate(cti_class = cut(
+#     cti,
+#     breaks = c(2, 6, 9, 12, 15),
+#     labels = c("low", "medium-low", "medium-high", "high"),
+#     right = TRUE
+#   )) |>
+#   group_by(aridity_class, cti_class) |>
+#   summarise(
+#     mean_delta_nocond = mean(delta_nocond, na.rm = TRUE),
+#     mean_delta_cond = mean(delta_cond, na.rm = TRUE),
+#     .groups = "drop"
+#     )
+
+
+# common_heatmap_scale <- scale_fill_gradient2(
+#   low = "darkslategrey",
+#   mid = "beige",
+#   high = "hotpink4",
+#   midpoint = 0,
+#   name = expression(epsilon*"′ (Mean Deviation)"),
+#   limits = c(-0.4, 1.4),
+#   labels = scales::label_number(accuracy = 0.1),
+#   breaks = seq(-0.4, 1.4, by = 0.4)
+# )
+
+
+df_budyko <- df_budyko |>
   summarise(
-    mean_delta_nocond = mean(delta_nocond, na.rm = TRUE),
-    mean_delta_cond = mean(delta_cond, na.rm = TRUE),
+    mean_res = mean(res, na.rm = TRUE),
+    mean_res_corr = mean(res_corr, na.rm = TRUE),
+    mean_res_cond = mean(res_cond, na.rm = TRUE),
+    mean_res_corr_cond = mean(res_corr, na.rm = TRUE),
     .groups = "drop"
     )
 
 
-common_heatmap_scale <- scale_fill_gradient2(
-  low = "darkslategrey",
-  mid = "beige",
-  high = "hotpink4",
-  midpoint = 0,
-  name = expression(epsilon*"′ (Mean Deviation)"),
-  limits = c(-0.4, 1.4),
-  labels = scales::label_number(accuracy = 0.1),
-  breaks = seq(-0.4, 1.4, by = 0.4)
-)
-
-
-gg_cti_heat_nocond <- df_heatmap |>
+gg_cti_heat_nocond <- df_budyko |>
   ggplot(
     aes (
       x = aridity_class,
@@ -44,7 +54,7 @@ gg_cti_heat_nocond <- df_heatmap |>
   labs(
     x = "Aridity Classes (PET/P)",
     y = "CTI-Classes",
-    title = " CTI- und Aridity Classes (Cond)"
+    title = " CTI- und Aridity Classes (No-Cond)"
   ) +
   theme_classic() +
   theme(
@@ -52,7 +62,7 @@ gg_cti_heat_nocond <- df_heatmap |>
     axis.text.x = element_text(angle = 0)
   )
 
-# plot(gg_cti_heat_nocond)
+ plot(gg_cti_heat_nocond)
 #
 # ggsave(here::here("analysis/pics/AI_CTI_Heatmap_Nocond.png"))
 
@@ -70,7 +80,7 @@ gg_cti_heat_cond <- df_heatmap |>
   labs(
     x = "Aridity Classes (PET/P)",
     y = "CTI-Classes",
-    title = " CTI- und Aridity Classes (NO-Cond)"
+    title = " CTI- und Aridity Classes (Cond)"
   ) +
   theme_classic() +
   theme(

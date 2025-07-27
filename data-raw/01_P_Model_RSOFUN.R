@@ -1,12 +1,17 @@
 
-
+install.packages("rsofun")
 library(rsofun)
 library(purrr)
 library(readr)
 
 
 
-driver <- read_rds("/data_2/FluxDataKit/v3.4/zenodo_upload/rsofun_driver_data_v3.4.2.rds")
+driver <- readr::read_rds("/data_2/FluxDataKit/v3.4/zenodo_upload/rsofun_driver_data_v3.4.2.rds") |>
+  dplyr::mutate(fapar_missing = purrr::map_lgl(forcing, ~ all(is.na(.x$fapar)))) |>
+  dplyr::filter(!fapar_missing) |>
+  dplyr::select(-fapar_missing)
+
+
 params_modl <- list(
   kphio              = 5.000000e-02, # chosen to be too high for demonstration
   kphio_par_a        =-2.289344e-03,
@@ -45,9 +50,9 @@ df_cond_mean_ann <- output |>
   mutate(data = purrr::map(data, ~get_annual_cond(.))) |>
   unnest(data)
 
-readr::write_csv(df_cond_mean_ann, file = here::here("data/df_cond_mean_ann_2.csv"))
+readr::write_csv(df_cond_mean_ann, file = here::here("flx_wb2/flx_wb2/data/df_cond_mean_ann_2.csv"))
 
-cond_pmodel <- readr::read_csv(here::here("data/df_cond_mean_ann_2.csv"))
+cond_pmodel <- readr::read_csv(here::here("flx_wb2/flx_wb2/data/df_cond_mean_ann_2.csv"))
 
 
 df_sites <-
