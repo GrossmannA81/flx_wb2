@@ -1,3 +1,4 @@
+HEAD
 
 install.packages("rsofun")
 library(rsofun)
@@ -5,11 +6,7 @@ library(purrr)
 library(readr)
 
 
-
-driver <- readr::read_rds("/data_2/FluxDataKit/v3.4/zenodo_upload/rsofun_driver_data_v3.4.2.rds") |>
-  dplyr::mutate(fapar_missing = purrr::map_lgl(forcing, ~ all(is.na(.x$fapar)))) |>
-  dplyr::filter(!fapar_missing) |>
-  dplyr::select(-fapar_missing)
+driver <- read_rds("~/data_2/FluxDataKit/v3.4/zenodo_upload/rsofun_driver_data_v3.4.2.rds")
 
 
 params_modl <- list(
@@ -29,10 +26,6 @@ output <- rsofun::runread_pmodel_f(
   driver,
   par = params_modl
 )
-
-
-
-library(tidyverse)
 
 get_annual_cond <- function(df){
   adf <- df |>
