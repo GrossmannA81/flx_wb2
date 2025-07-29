@@ -133,6 +133,8 @@ df_sites <- df_sites |>
 df_sites <- df_sites |>
   select(
     sitename,
+    lon,
+    lan,
     canopy_height,
     igbp_land_use,
     whc,

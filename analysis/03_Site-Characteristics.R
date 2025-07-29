@@ -1,15 +1,21 @@
 
 
 df_facet_map <- df_budyko |>
-  select(sitename, pet_p_cond, cti, delta_cond) |>
-  rename(
-    `PET/P` = pet_p_cond,
-    delta = delta_cond
-  )
+  select(
+    sitename,
+    pet_p,
+    pet_p_cond,
+    cti,
+    res,
+    res_cond,
+    res_corr_cond
+    )
+
 
 gg_cti_ai_diagram <- df_facet_map |>
-  ggplot(aes(x = `PET/P`, y = cti)) +
-  geom_point(aes(color = delta), size = 2) +
+  filter(pet_p_cond <= 7) |>
+  ggplot(aes(x = pet_p_cond, y = cti)) +
+  geom_point(aes(color = res_cond), size = 2) +
   scale_color_gradient2(
     low = "darkslategrey",
     mid = "beige",
@@ -18,12 +24,12 @@ gg_cti_ai_diagram <- df_facet_map |>
     limits = c(-0.4, 1.4),
     breaks = seq(-0.4, 1.4, by = 0.4),
     labels = scales::label_number(accuracy = 0.1),
-    name = expression(epsilon*"′ (Deviation)")
+    name = expression(epsilon*"′")
   ) +
   labs(
-    y = "CTI (Compound Topographic Index)",
-    x = "Aridity (PET / P)",
-    title = "Deviation from Budyko Curve",
+    y = "CTI",
+    x = "Aridity Index",
+    title = "ε′ from Budyko - LE_F_MDS",
     color = expression(epsilon*"′")
   ) +
   theme_classic() +
@@ -35,9 +41,42 @@ gg_cti_ai_diagram <- df_facet_map |>
 # Show plot
 plot(gg_cti_ai_diagram)
 
+
+gg_cti_ai_diagram_cond <- df_facet_map |>
+  filter(pet_p_cond <= 7) |>
+  ggplot(aes(x = pet_p_cond, y = cti)) +
+  geom_point(aes(color = res_corr_cond), size = 2) +
+  scale_color_gradient2(
+    low = "darkslategrey",
+    mid = "beige",
+    high = "hotpink4",
+    midpoint = 0,
+    limits = c(-0.4, 1.4),
+    breaks = seq(-0.4, 1.4, by = 0.4),
+    labels = scales::label_number(accuracy = 0.1),
+    name = expression(epsilon*"′")
+  ) +
+  labs(
+    y = "CTI",
+    x = "Aridity Index",
+    title = "ε′ from Budyko - LE_CORR",
+    color = expression(epsilon*"′")
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = "right"
+  )
+
+plot(gg_cti_ai_diagram_cond)
+
+
+gg_cti_ai_combined <- gg_cti_ai_diagram + gg_cti_ai_diagram_cond
+
+print(gg_cti_ai_combined)
+
 # Save plot
 ggsave(
-  filename = here::here("analysis/pics/AI_CTI_Diagram.png"),
+  filename = here::here("analysis/pics/AI_CTI_Diagram_ALL.png"),
   plot = gg_cti_ai_diagram,
   width = 10,
   height = 6
@@ -47,296 +86,66 @@ ggsave(
 
 
 
+###-------------------EXCEL with Condensation:---------------------------
 
-
-###-------------------CTI and Aridity Deviation and Landcovertypes -  facet Heatmap---------------------------
-
-
-
-
-library(ggrepel)
-
-
-
-pet_p_threshold <- quantile(df_budyko$pet_p, probs = 0.95, na.rm = TRUE)
-
-
-df_facet_map <- df_budyko |>
-  select(sitename, pet_p, pet_p_cond, cti, delta_nocond, delta_cond, igbp_land_use) |>
-  rename(`No Condensation` = delta_nocond,
-         `With Condensation` = delta_cond) |>
-  pivot_longer(
-    cols = c(`No Condensation`, `With Condensation`),
-    names_to = "Condensation",
-    values_to = "delta"
-  ) |>
-  mutate(
-    pet_p_val = case_when(
-      Condensation == "No Condensation" ~ pet_p,
-      Condensation == "With Condensation" ~ pet_p_cond
-    ),
-    highlight = ifelse(pet_p > pet_p_threshold, igbp_land_use, NA)  # alternatively replace land_cover by sitenames
-  )
-
-# Plot
-gg_cti_ai_diagram <- df_facet_map |>
-  ggplot(aes(x = cti, y = pet_p_val)) +
-  geom_point(aes(color = delta), size = 2) +
-  geom_text_repel(
-    data = df_facet_map |> filter(pet_p > pet_p_threshold),
-    aes(label = highlight),
-    size = 3, fontface = "bold"
-  ) +
-  facet_wrap(~Condensation) +
-  scale_color_gradient2(
-    low = "darkslategrey",
-    mid = "beige",
-    high = "hotpink4",
-    midpoint = 0,
-    limits = c(-0.4, 1.4),
-    breaks = seq(-0.4, 1.4, by = 0.4),
-    labels = scales::label_number(accuracy = 0.1),
-    name = expression(epsilon*"′ (Deviation)")
-  ) +
-  labs(
-    x = "CTI (Compound Topographic Index)",
-    y = "Aridity (PET / P)",
-    title = "Deviation from Budyko Curve by CTI and Aridity",
-    color = expression(epsilon*"′")
-  ) +
-  theme_classic() +
-  theme(
-    strip.background = element_rect(fill = "grey95", color = NA),
-    strip.text = element_text(size = 12, face = "bold"),
-    legend.position = "right"
-  )
-
-
-plot(gg_cti_ai_diagram)
-
-ggsave(
-  filename = here::here("analysis/pics/AI_CTI_Diagram_by_Landcover.png"),
-  plot = gg_cti_ai_diagram,
-  width = 12,
-  height = 5
-)
-
-
-###-------------------CTI and Aridity Deviation and Landcovertypes -  individually---------------------------
-
-
-# install.packages("patchwork")
-# library(patchwork)
-#
-#
-# df_facet_by_covertype <- df_budyko |>
-#   select(sitename, pet_p, pet_p_cond, cti, delta_nocond, delta_cond, igbp_land_use) |>
-#   rename(
-#     `No Condensation` = delta_nocond,
-#     `With Condensation` = delta_cond
-#   ) |>
-#   pivot_longer(
-#     cols = c(`No Condensation`, `With Condensation`),
-#     names_to = "Condensation",
-#     values_to = "delta"
-#   ) |>
-#   mutate(
-#     pet_p_val = case_when(
-#       Condensation == "No Condensation" ~ pet_p,
-#       Condensation == "With Condensation" ~ pet_p_cond
-#     ),
-#     highlight = ifelse(pet_p > pet_p_threshold, igbp_land_use, NA)
-#   )
-#
-# land_cover_types <- unique(df_facet_by_covertype$igbp_land_use)
-#
-# plots_by_cover <- list()
-#
-#
-# for (lc in land_cover_types) {
-#   df_filtered <- df_facet_by_covertype |> filter(igbp_land_use == lc)
-#
-#   gg_cti_ai_covertypes <- ggplot(df_filtered, aes(x = cti, y = pet_p_val)) +
-#     geom_point(aes(color = delta), size = 2) +
-#     geom_text_repel(
-#       data = df_filtered |> filter(pet_p > pet_p_threshold),
-#       aes(label = highlight),
-#       size = 3, fontface = "bold"
-#     ) +
-#     facet_wrap(~Condensation) +
-#     scale_color_gradient2(
-#       low = "darkslategrey", mid = "beige", high = "hotpink4",
-#       midpoint = 0, limits = c(-0.4, 1.4), breaks = seq(-0.4, 1.4, 0.4),
-#       labels = scales::label_number(accuracy = 0.1),
-#       name = expression(epsilon*"′ (Deviation)")
-#     ) +
-#     labs(
-#       title = paste("CTI vs. Aridity –", lc),
-#       x = "CTI (Compound Topographic Index)",
-#       y = "Aridity (PET / P)",
-#       color = expression(epsilon*"′")
-#     ) +
-#     theme_classic() +
-#     theme(
-#       strip.background = element_rect(fill = "grey95", color = NA),
-#       strip.text = element_text(size = 12, face = "bold"),
-#       legend.position = "right"
-#     )
-#
-#   plots_by_cover[[lc]] <- gg_cti_ai_covertypes
-# }
-#
-#
-# combined_plot <- wrap_plots(plots_by_cover, ncol = 3)
-#
-# print(combined_plot)
-
-
-
-
-###-------------------Landcovertypes, CTI, Canopy Height, MAT and WHC with highest AridityIndex-  TABLE---------------------------
-
-
-install.packages("writexl")
+library(dplyr)
 library(writexl)
 
-#--------------------------------------------------------------------------------------------------------
 
-df_additional_vars <- df_budyko |>
+#LE_F_MDS:::
+
+df_excel <- df_budyko |>
+  filter(
+    cti_class %in% c("Medium", "High", "Very High"),
+    aridity_class %in% c("SA", "A"),
+    res_cond > 0,
+  ) |>
   select(
     sitename,
-    canopy_height,
-    whc,
-    mat
-  ) |>
-  distinct(sitename, .keep_all = TRUE)
-
-#WITHOUT
-
-pet_p_80th <- quantile(df_budyko$pet_p, 0.8, na.rm = TRUE) #df_budyko -> n = 253 (top 20 = 50-51)
-
-
-df_landcover_NC <- df_budyko |>
-  filter(pet_p >= pet_p_80th) |>
-  select(sitename, igbp_land_use, cti, pet_p, pet_p_cond) |>
-  left_join(df_additional_vars, by = "sitename")
-
-land_use_summary_NC <- df_landcover_NC |>
-  count(igbp_land_use, name = "n") |>
-  mutate(percent = round(100 * n / sum(n), 1)) |>
-  arrange(desc(n))
-
-df_landcover_NC <- df_landcover_NC |>
-  mutate(igbp_land_use = factor(igbp_land_use, levels = land_use_summary_NC$igbp_land_use)) |>
-  arrange(igbp_land_use)
-
-df_landcover_table_detail_NC <- df_landcover_NC |>
-  arrange(desc(pet_p)) |>
-  mutate(
-    AI      = round(pet_p, 3),
-    CTI     = round(cti, 3),
-    Canopy = round(canopy_height, 2),
-    WHC = round (whc, 2),
-    MAT = round (mat, 2),
-    High_Aridity = pet_p >=2,
-    High_CTI = cti >=7
-  ) |>
-  select(
-    AI,
-    LandCover = igbp_land_use,
-    CTI,
-    Canopy,
-    WHC,
-    MAT,
-    High_Aridity,
-    High_CTI,
-    sitename
-  ) |>
-  distinct()
-
-
-df_landcover_table_summary_NC <- land_use_summary_NC |>
-  rename(
-    LandCover = igbp_land_use,
-    Count = n,
-    Percent = percent
-  )
-
-
-
-
-
-#WITH CONDENSATION
-
-pet_p_cond_80th <- quantile(df_budyko$pet_p_cond, na.rm = TRUE, probs = 0.8)
-
-df_landcover_WC <- df_budyko |>
-  filter(pet_p_cond >= pet_p_cond_80th, aet_p_cond > 1) |>
-  select(sitename, igbp_land_use, cti, pet_p, pet_p_cond, aet_p_cond) |>
-  left_join(df_additional_vars, by = "sitename")
-
-land_use_summary_WC <- df_landcover_WC |>
-  count(igbp_land_use, name = "n") |>
-  mutate(percent = round(100 * n / sum(n), 1)) |>
-  arrange(desc(n))
-
-df_landcover_WC <- df_landcover_WC |>
-  mutate(igbp_land_use = factor(igbp_land_use, levels = land_use_summary_WC$igbp_land_use)) |>
-  arrange(igbp_land_use)
-
-df_landcover_table_detail_WC <- df_landcover_WC |>
-  arrange(desc(pet_p_cond)) |>
-  mutate(
-    EI_cond = round (aet_p_cond, 3),
-    AI_cond = round(pet_p_cond, 3),
-    CTI     = round(cti, 3),
-    Canopy = round (canopy_height, 2),
-    WHC = round (whc, 2),
-    MAT = round (mat, 2),
-    High_Aridity = pet_p >=2,
-    High_CTI = cti >=7
-  ) |>
-  select(
-    # AI,
-    EI_cond,
-    AI_cond,
-    LandCover = igbp_land_use,
-    CTI,
-    Canopy,
-    WHC,
-    MAT,
-    High_Aridity,
-    High_CTI,
-    sitename
-  ) |>
-  distinct() |>
-  left_join(
-    df_sites |>
-      select(sitename, lon, lat
-      ),
-    by="sitename"
-  )
-
-df_landcover_table_summary_WC <- land_use_summary_WC |>
-  rename(
-    LandCover = igbp_land_use,
-    Count = n,
-    Percent = percent
-  )
-
-
+    igbp_land_use,
+    cti,
+    res_cond,
+    aridity_class,
+    cti_class
+  )|>
+  arrange(desc(cti))
 
 
 
 write_xlsx(
-  list(
-    Detail_NC = df_landcover_table_detail_NC,
-    Detail_WC = df_landcover_table_detail_WC,
-    Summary_NC = df_landcover_table_summary_NC,
-    Summary_WC = df_landcover_table_summary_WC
-  ),
-  path = here::here("analysis", "tables", "Landcover_Aridity_Comparison_Top10percent.xlsx")
+  list("filtered_sites_cti_ranking" = df_excel),
+  path = "analysis/tables/table_topsites.xlsx"
 )
+
+
+
+#LE_CORR:::
+
+df_excel_corr <- df_budyko |>
+  filter(
+    cti_class %in% c("Medium", "High", "Very High"),
+    aridity_class %in% c("SA", "A"),
+    res_corr_cond > 0,
+  ) |>
+  select(
+    sitename,
+    igbp_land_use,
+    cti,
+    res_corr_cond,
+    aridity_class,
+    cti_class
+  )|>
+arrange(desc(cti))
+
+
+write_xlsx(
+  list("filtered_sites_with_ranking_corrected" = df_excel_corr),
+  path = "analysis/tables/table_topsites_corr.xlsx"
+)
+
+
+print(df_excel)
+print(df_excel_corr)
 
 
 
@@ -344,39 +153,136 @@ write_xlsx(
 ###----------------------------PLOTS-PELLETIER:--------------------------
 
 
-
+install.packages("terra")
 library(terra)
 install.packages("sf")
 library(sf)
 library (ggplot2)
 install.packages("viridis")
 library(viridis)
+library(readr)
+library(here)
+install.packages("ggrepel")
+library(ggrepel)
 
-rast_pelletier_hs_bv <- rast("/data/archive/soil_pelletier_2016/data/Global_Soil_Regolith_Sediment_1304/data/hill-slope_valley-bottom.tif")
+#include lon/lat
+df_site_coords <- read_csv("/data_2/FluxDataKit/v3.4/zenodo_upload/fdk_site_info.csv") |>
+  select(sitename, lon, lat) |>
+  filter(!(sitename %in% c("MX-Tes", "US-KS3")))
 
-rast_pelletier_b_ll <- rast ("/data/archive/soil_pelletier_2016/data/Global_Soil_Regolith_Sediment_1304/data/upland_valley-bottom_and_lowland_sedimentary_deposit_thickness.tif")
+df_budyko <- df_budyko |>
+  left_join(df_site_coords, by = "sitename")
+
+
 
 rast_pelletier_avg <- rast ("/data/archive/soil_pelletier_2016/data/Global_Soil_Regolith_Sediment_1304/data/average_soil_and_sedimentary-deposit_thickness.tif")
+# plot(rast_pelletier_avg)
 
-# use terra library to extract from raster
-extract()
 
-plot(rast_pelletier_b_ll)
+extract_coords <- df_budyko |>
+  dplyr::select(sitename, lon, lat) |>
+  distinct()
+
+
+thickness_values <- terra::extract(rast_pelletier_avg, extract_coords |>
+                                     dplyr::select(lon, lat))
+
+df_thickness <- bind_cols(extract_coords, thickness = thickness_values [, 2])
+
+
+df_excel <- df_excel |>
+  left_join(df_thickness, by = "sitename")
+
+df_excel_corr <- df_excel_corr |>
+  left_join(df_thickness, by = "sitename")
+
+# plot(rast_pelletier_avg, main = "High Aridity and CTI Sites - LE_CORR")
+# points(df_excel_corr$lon, df_excel_corr$lat, pch = 19, col = "red")
+
+
+
+
+rast_lowres <- terra::aggregate(rast_pelletier_avg, fact = 10)
+
+df_rast <- as.data.frame(rast_lowres, xy = TRUE, na.rm = TRUE)
+colnames(df_rast)[3] <- "thickness"
+
+
+ggplot() +
+  geom_raster(data = df_rast, aes(x = x, y = y, fill = thickness)) +
+  scale_fill_viridis_c(na.value = "transparent") +
+  geom_point(data = df_excel, aes(x = lon, y = lat), color = "red", size = 1.5) +
+  geom_text_repel(
+    data = df_excel,
+    aes(
+      x = lon,
+      y = lat,
+      label = paste0(sitename, "\n", round(thickness, 1), " m")
+    ),
+    color = "red",
+    size = 3,
+    box.padding = 0.5,
+    point.padding = 0.3,
+    segment.color = NA
+    ) +
+  coord_sf(
+    xlim = range(df_excel$lon, na.rm = TRUE) + c(-2, 2),
+    ylim = range(df_excel$lat, na.rm = TRUE) + c(-2, 2),
+    expand = FALSE
+  ) +
+  labs(
+    title = "High Aridity and CTI Sites - LE_F_MDS",
+    x = "Longitude",
+    y = "Latitude",
+    fill = "Thickness"
+  ) +
+  theme_minimal() -> p
+
+
+ggsave(
+  filename = here::here("analysis/pics/Pelletier_LE_F_MDS.png"),
+  plot = p,
+  width = 8,
+  height = 6,
+  dpi = 300
+)
+
+
+
+
+plot(rast_pelletier_avg, main = "High Aridity and CTI Sites - LE_CORR")
+points(df_excel_corr$lon, df_excel_corr$lat, pch = 19, col = "red")
+
+ggsave(
+  here::here("analysis/pics/....png"),
+  width = 8, height = 6, dpi = 300
+)
+
+
 
 
 sites_sf <- st_as_sf(
-  df_landcover_table_detail_WC,
+  df_excel,
   coords = c("lon", "lat"),
   crs = 4326)  # WGS84
 
-rast_pelletier_proj <- project(rast_pelletier_avg, crs(sites_sf))
-rast_pelletier_proj <- aggregate(rast_pelletier_proj, fact = 5)
-rast_pelletier_proj <- crop(rast_pelletier_proj, ext(sites_sf) + 0.1)
+
+ggsave(
+  here::here("analysis/pics/....png"),
+  width = 8, height = 6, dpi = 300
+)
 
 
-rast_pelletier_df <- as.data.frame(rast_pelletier_proj, xy = TRUE, na.rm = TRUE)
-names(rast_pelletier_df)[3] <- "thickness"
 
+#
+# rast_pelletier_proj <- project(rast_pelletier_avg, crs(sites_sf))
+# rast_pelletier_proj <- aggregate(rast_pelletier_proj, fact = 5)
+# rast_pelletier_proj <- crop(rast_pelletier_proj, ext(sites_sf) + 0.1)
+#
+#
+# rast_pelletier_df <- as.data.frame(rast_pelletier_proj, xy = TRUE, na.rm = TRUE)
+# names(rast_pelletier_df)[3] <- "thickness"
+#
 
 
 # ggplot() +
@@ -394,10 +300,8 @@ names(rast_pelletier_df)[3] <- "thickness"
 #
 #
 #
-plot(rast_pelletier_avg, main = "Pelletier Raster + High Aridity Sites")
-points(df_landcover_table_detail_WC$lon, df_landcover_table_detail_WC$lat, pch = 19, col = "red")
-# text(df_landcover_table_detail_WC$lon, df_landcover_table_detail_WC$lat,
-#      labels = df_landcover_table_detail_WC$sitename, pos = 3, cex = 0.6)
+
+
 
 
 

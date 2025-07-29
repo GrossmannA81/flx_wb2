@@ -145,7 +145,7 @@ df_budyko <- df_budyko |>
   )
 
 
-readr::write_csv(df_budyko, file = here::here("data/df_budyko.csv"))
+readr::write_csv(df_budyko, file = here::here("flx_wb2/flx_wb2/data/df_budyko.csv"))
 
 
 

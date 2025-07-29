@@ -9,20 +9,30 @@ df_budyko <- df_budyko |>
     by = "sitename"
   )
 
+# Berechne CTI-Quantile (5 Klassen)
+cti_quants <- quantile(df_budyko$cti, probs = seq(0, 1, length.out = 6), na.rm = TRUE)
+aridity_quants_nocond <- quantile(df_budyko$pet_p, probs = seq(0,1, length.out= 6), na.rm=TRUE)
+aridity_quants_cond <- quantile(df_budyko$pet_p_cond, probs = seq(0,1, length.out= 6), na.rm=TRUE)
 
 df_budyko <- df_budyko |>
   mutate(
+    aridity_class_nocond = factor(
+      cut(pet_p,
+          breaks = c(-Inf, 1, 2, 4, Inf),
+          labels = c("H", "SH", "SA", "A")),
+      levels = c("H", "SH", "SA", "A")
+    ),
     aridity_class = factor(
       cut(pet_p_cond,
           breaks = c(-Inf, 1, 2, 4, Inf),
           labels = c("H", "SH", "SA", "A")),
       levels = c("H", "SH", "SA", "A")
     ),
-    cti_class = factor(case_when(
-      cti < 4.826303 ~ "CTI Low",
-      cti >= 4.826303 & cti < 6.339016 ~ "CTI Med",
-      cti >= 6.339016 ~ "CTI High"
-    ), levels = c("CTI Low", "CTI Med", "CTI High"))
+    cti_class = cut(cti,
+                    breaks = cti_quants,
+                    include.lowest = TRUE,
+                    labels = c("Very Low", "Low", "Medium", "High", "Very High")
+    )
   )
 
 
@@ -286,32 +296,32 @@ library(ggplot2)
 
 df_hm_bin1 <- df_budyko |>
   # filter(!is.na(res_cond)) |>
-  group_by(cti_class, aridity_class) |>
+  group_by(cti_class, aridity_class_nocond) |>
   summarise(
     mean_res = mean(res, na.rm = TRUE),
 #    count = n(),
     .groups = "drop"
   ) |>
   complete(
-    cti_class = factor(c("CTI Low", "CTI Med", "CTI High"),
-                       levels = c("CTI Low", "CTI Med", "CTI High")),
-    aridity_class = factor(c("H", "SH", "SA", "A"),
+    cti_class = factor(c("Very Low", "Low", "Medium", "High", "Very High"),
+                       levels = c("Very Low", "Low", "Medium", "High", "Very High")),
+    aridity_class_nocond = factor(c("H", "SH", "SA", "A"),
                            levels = c("H", "SH", "SA", "A")),
     fill = list(mean_res = NA)
   )
 
 df_hm_bin2 <- df_budyko |>
   #  filter(!is.na(res_corr_cond)) |>
-  group_by(cti_class, aridity_class) |>
+  group_by(cti_class, aridity_class_nocond) |>
   summarise(
     mean_res_corr = mean(res_corr, na.rm = TRUE),
 #    count = n(),
     .groups = "drop"
   ) |>
   complete(
-    cti_class = factor(c("CTI Low", "CTI Med", "CTI High"),
-                       levels = c("CTI Low", "CTI Med", "CTI High")),
-    aridity_class = factor(c("H", "SH", "SA", "A"),
+    cti_class = factor(c("Very Low", "Low", "Medium", "High", "Very High"),
+                       levels = c("Very Low", "Low", "Medium", "High", "Very High")),
+    aridity_class_nocond = factor(c("H", "SH", "SA", "A"),
                            levels = c("H", "SH", "SA", "A")),
     fill = list(mean_res_corr = NA)
   )
@@ -326,8 +336,8 @@ df_hm_bin3 <- df_budyko |>
     .groups = "drop"
   ) |>
   complete(
-    cti_class = factor(c("CTI Low", "CTI Med", "CTI High"),
-                       levels = c("CTI Low", "CTI Med", "CTI High")),
+    cti_class = factor(c("Very Low", "Low", "Medium", "High", "Very High"),
+                       levels = c("Very Low", "Low", "Medium", "High", "Very High")),
     aridity_class = factor(c("H", "SH", "SA", "A"),
                            levels = c("H", "SH", "SA", "A")),
     fill = list(mean_res_cond = NA)
@@ -342,8 +352,8 @@ df_hm_bin4 <- df_budyko |>
     .groups = "drop"
   ) |>
   complete(
-    cti_class = factor(c("CTI Low", "CTI Med", "CTI High"),
-                       levels = c("CTI Low", "CTI Med", "CTI High")),
+    cti_class = factor(c("Very Low", "Low", "Medium", "High", "Very High"),
+                       levels = c("Very Low", "Low", "Medium", "High", "Very High")),
     aridity_class = factor(c("H", "SH", "SA", "A"),
                            levels = c("H", "SH", "SA", "A")),
     fill = list(mean_res_corr_cond = NA)
@@ -374,7 +384,7 @@ common_heatmap_scale <- scale_fill_gradient2(
 
 
 heatmap_bin1 <- ggplot(df_hm_bin1, aes(
-  x = aridity_class, y = cti_class, fill = mean_res)) +
+  x = aridity_class_nocond, y = cti_class, fill = mean_res)) +
   geom_tile(color = "white") +
 #  geom_text(aes(label = ifelse(count == 0, "NA", count)), size = 3) +
   common_heatmap_scale +
@@ -385,7 +395,7 @@ heatmap_bin1 <- ggplot(df_hm_bin1, aes(
 
 
 heatmap_bin2 <- ggplot(df_hm_bin2, aes(
-  x = aridity_class, y = cti_class, fill = mean_res_corr)) +
+  x = aridity_class_nocond, y = cti_class, fill = mean_res_corr)) +
   geom_tile(color = "white") +
 #  geom_text(aes(label = ifelse(count == 0, "NA", count)), size = 3) +
   common_heatmap_scale +
@@ -418,7 +428,7 @@ heatmap_bin4 <- ggplot(df_hm_bin4, aes(
 
 legend <- cowplot::get_legend(
   ggplot(df_hm_bin1, aes(
-    x = aridity_class, y = cti_class, fill = mean_res)) +
+    x = aridity_class_nocond, y = cti_class, fill = mean_res)) +
     geom_tile() +
     common_heatmap_scale +
     theme(legend.position = "right")  # Legende wird nur zum extrahieren angezeigt
@@ -457,7 +467,7 @@ print(plot_hm_final)
 
 
 ggsave(
-  filename = here::here("analysis/pics/Heatmap_ALL.png"),
+  filename = here::here("flx_wb2/flx_wb2/analysis/pics/Heatmap_ALL.png"),
   plot = plot_hm_final,
   width = 10,
   height = 5

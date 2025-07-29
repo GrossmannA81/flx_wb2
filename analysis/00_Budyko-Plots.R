@@ -81,12 +81,13 @@ print(bud_all_with_title)
 
 
 ggsave(
-  filename = here::here("analysis/pics/Budyko_Comparison_ALL.png"),
+  filename = here::here("flx_wb2/flx_wb2/analysis/pics/Budyko_Comparison_ALL.png"),
   plot = bud_all,
   width = 5,
   height = 5,
   dpi = 300
 )
+
 
 
 #-----------HISTOGRAMS RESIDUALS::---------------------------
@@ -142,7 +143,7 @@ plot_residuals_final <- cowplot::plot_grid(
 print(plot_residuals_final)
 
 ggsave(
-  filename = here::here("analysis/pics/Budyko_Residuals_ALL.png"),
+  filename = here::here("flx_wb2/flx_wb2/analysis/pics/Budyko_Residuals_ALL.png"),
   plot = plot_residuals_grid,
   width = 10,
   height = 8,
@@ -159,6 +160,8 @@ install.packages("moments")
 library(moments)
 library(broom)
 library(tidyr)
+install.packages("writexl")
+library(writexl)
 
 # Create a long-format residuals table
 df_residuals_long <- df_budyko |>
@@ -179,6 +182,8 @@ bud_summary_table <- df_residuals_long |>
 
 print(bud_summary_table)
 
+
+
 # > print(bud_summary_table)
 # # A tibble: 4 × 7
 # variant          Mean    SD  Median   IQR Skewness Shapiro_p
@@ -189,4 +194,5 @@ print(bud_summary_table)
 # 4 res_corr_cond -0.0076 0.300 -0.0583 0.277     1.43         0
 
 
+write_xlsx(bud_summary_table, path = "analysis/tables/bud_summary_table.xlsx")
 
