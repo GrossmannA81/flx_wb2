@@ -86,70 +86,6 @@ ggsave(
 
 
 
-###-------------------EXCEL with Condensation:---------------------------
-
-library(dplyr)
-library(writexl)
-
-
-#LE_F_MDS:::
-
-df_excel <- df_budyko |>
-  filter(
-    cti_class %in% c("Medium", "High", "Very High"),
-    aridity_class %in% c("SA", "A"),
-    res_cond > 0,
-  ) |>
-  select(
-    sitename,
-    igbp_land_use,
-    cti,
-    res_cond,
-    aridity_class,
-    cti_class
-  )|>
-  arrange(desc(cti))
-
-
-
-write_xlsx(
-  list("filtered_sites_cti_ranking" = df_excel),
-  path = "analysis/tables/table_topsites.xlsx"
-)
-
-
-
-#LE_CORR:::
-
-df_excel_corr <- df_budyko |>
-  filter(
-    cti_class %in% c("Medium", "High", "Very High"),
-    aridity_class %in% c("SA", "A"),
-    res_corr_cond > 0,
-  ) |>
-  select(
-    sitename,
-    igbp_land_use,
-    cti,
-    res_corr_cond,
-    aridity_class,
-    cti_class
-  )|>
-arrange(desc(cti))
-
-
-write_xlsx(
-  list("filtered_sites_with_ranking_corrected" = df_excel_corr),
-  path = "analysis/tables/table_topsites_corr.xlsx"
-)
-
-
-print(df_excel)
-print(df_excel_corr)
-
-
-
-
 ###----------------------------PLOTS-PELLETIER:--------------------------
 
 
@@ -203,6 +139,72 @@ df_excel_corr <- df_excel_corr |>
 
 
 
+###-------------------EXCEL with Condensation:---------------------------
+
+library(dplyr)
+
+library(writexl)
+
+
+#LE_F_MDS:::
+
+df_excel <- df_excel |>
+  filter(
+    cti_class %in% c("Medium", "High", "Very High"),
+    aridity_class %in% c("SA", "A"),
+    res_cond > 0,
+  ) |>
+  select(
+    Site = sitename,
+    LCT = igbp_land_use,
+    CTI = cti,
+    Res = res_cond,
+    Aridity = aridity_class,
+    CTI_Class = cti_class,
+    Thk = thickness
+  )|>
+  arrange(desc(CTI))
+
+
+
+write_xlsx(
+  list("filtered_sites_cti_ranking" = df_excel),
+  path = "analysis/tables/table_topsites.xlsx"
+)
+
+
+
+#LE_CORR:::
+
+df_excel_corr <- df_excel_corr |>
+  filter(
+    cti_class %in% c("Medium", "High", "Very High"),
+    aridity_class %in% c("SA", "A"),
+    res_corr_cond > 0,
+  ) |>
+  select(
+    Site = sitename,
+    LCT = igbp_land_use,
+    CTI = cti,
+    Res_Corr = res_corr_cond,
+    Aridity = aridity_class,
+    CTI_Class = cti_class,
+    Thk = thickness
+  )|>
+  arrange(desc(CTI))
+
+
+write_xlsx(
+  list("filtered_sites_with_ranking_corrected" = df_excel_corr),
+  path = "analysis/tables/table_topsites_corr.xlsx"
+)
+
+
+print(df_excel)
+print(df_excel_corr)
+
+
+##PLOTS------------------------
 
 rast_lowres <- terra::aggregate(rast_pelletier_avg, fact = 10)
 
@@ -299,6 +301,8 @@ ggsave(
 
 # plot(rast_pelletier_avg, main = "High Aridity and CTI Sites - LE_CORR")
 # points(df_excel_corr$lon, df_excel_corr$lat, pch = 19, col = "red")
+
+
 
 
 
