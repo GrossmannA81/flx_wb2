@@ -16,10 +16,10 @@ The data is available for each site.
 
 path to files:
 ```bash
-- /data_2/FluxDataKit/v3.4/zenodo_upload/fdk_site_info.csv
+- ~/data_2/FluxDataKit/v3.4/zenodo_upload/fdk_site_info.csv
 ```
 ```bash
-- /data_2/FluxDataKit/v3.4/zenodo_upload/fdk_site_fullyearsequence.csv
+- ~/data_2/FluxDataKit/v3.4/zenodo_upload/fdk_site_fullyearsequence.csv
 ```
 
 ### Topography from Marthews (2015)
@@ -29,7 +29,7 @@ Each grid cell has a geographical location holding a specific value for CTI.
 
 path to file:
 ```bash
-- /data/archive/gti_marthews_2015/data/ga2.nc
+- ~/data/archive/gti_marthews_2015/data/ga2.nc
 ```
 
 
@@ -40,12 +40,18 @@ With exact coordinates, thickness is extracted and assigned to the  sitenames of
 
 path to file:
 ```bash
-- /data/archive/soil_pelletier_2016/data/Global_Soil_Regolith_Sediment_1304/data/average_soil_and_sedimentary-deposit_thickness.tif
+- ~/data/archive/soil_pelletier_2016/data/Global_Soil_Regolith_Sediment_1304/data/average_soil_and_sedimentary-deposit_thickness.tif
 ```
 
 ### Condensation
 The P-Model calculates condensation by converting night time total net radiation
-into the equivalent mass of water.
+into the equivalent mass of water. In order to check robustness of condensation which
+is added to precipitation, this additional factor helps to distinguish different scenarios.
+
+path to file:
+```bash
+- ~/data_2/FluxDataKit/v3.4/zenodo_upload/rsofun_driver_data_v3.4.2.rds
+```
 
 
 
@@ -71,3 +77,21 @@ analysis/
    ├─ tables/   #folder for outputs
 ```
 
+
+
+
+### data-raw
+
+- 00_Downolad_Data.R:
+This script gatters site infos and fullyearsequences from FluxDataKit.
+In a next step, needed Value from CTI is extracted and finally merged and written into 
+the df_sites.csv file which will be stored in the /data folder.
+
+- 01_P_Model_RSOFUN.R:
+Values of condensation are extracted and written into df_cond_mean_ann_2.csv.
+finally, these values are joined into the df_sites.csv file.
+
+### data
+
+- 01_Mean-Table.R:
+The daily FluxDataKit data is loaded. With the function 
