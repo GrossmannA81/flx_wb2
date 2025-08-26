@@ -72,13 +72,20 @@
 <div class="page-header"><h1 id="actual-evapotranspiration-in-arid-and-semi-arid-regions">Actual Evapotranspiration in Arid and Semi-arid Regions<a class="anchor" aria-label="anchor" href="#actual-evapotranspiration-in-arid-and-semi-arid-regions"></a>
 </h1></div>
 <p>This project uses Eddy Covariance FluxDataKit, Condensation, Soil Thickness Data from Pelletier and Compound Topographic Index (CTI) Data to explain deviations of high aridity in combination with high actual evapotranspiration from the theoretical Budyko framework.</p>
+<p>Scenarios: in order to compare different impacts of condensation (with or without) and letant energy (corrected or not), 4 scenarios are distinguished:</p>
+<ul>
+<li>without condensation + gap filled latent energy</li>
+<li>wihtout condensation + corrected latent energy</li>
+<li>with condensation + gap filled latent energy</li>
+<li>with condensation + corrected latent energy</li>
+</ul>
 <div class="section level2">
 <h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
 </h2>
 <div class="section level3">
 <h3 id="fluxdatakit">FluxDataKit<a class="anchor" aria-label="anchor" href="#fluxdatakit"></a>
 </h3>
-<p>The FLuxDataKit (version 3.4) provides flux tower records from <a href="https://doi.org/10.5281/zenodo.10885933" class="external-link">Zenodo</a>** and delivers half hourly and daily data from PLUMBER2 (Ukkola, 2021), Ameriflux (Ameriflux, 2023; Pastorello, 2020), ICOS Drought2018 (ICOS, 2018), ICOS WarmWinter2020 (ICOS, 2020). The data is available for each site.</p>
+<p>The FLuxDataKit (version 3.4) provides flux tower records from <a href="https://doi.org/10.5281/zenodo.10885933" class="external-link">Zenodo</a> and delivers half hourly and daily data from PLUMBER2 (Ukkola, 2021), Ameriflux (Ameriflux, 2023; Pastorello, 2020), ICOS Drought2018 (ICOS, 2018), ICOS WarmWinter2020 (ICOS, 2020). The data is available for each site.</p>
 <p>path to files:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="ex">-</span> ~/data_2/FluxDataKit/v3.4/zenodo_upload/fdk_site_info.csv</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">-</span> ~/data_2/FluxDataKit/v3.4/zenodo_upload/fdk_site_fullyearsequence.csv</span></code></pre></div>
@@ -108,7 +115,7 @@
 <div class="section level2">
 <h2 id="structure">Structure<a class="anchor" aria-label="anchor" href="#structure"></a>
 </h2>
-<p>This project is structured as followed and must be run in sequenced order:</p>
+<p>This project is structured as followed and shall be run in sequenced order:</p>
 <pre><code>data-raw/
    ├─ 00_Download_Data.R
    ├─ 01_P_Model_RSOFUN.R
@@ -126,7 +133,7 @@ analysis/
    ├─ pics/     #folder for outputs
    ├─ tables/   #folder for outputs</code></pre>
 <div class="section level3">
-<h3 id="data-raw">data-raw<a class="anchor" aria-label="anchor" href="#data-raw"></a>
+<h3 id="data-raw">/data-raw<a class="anchor" aria-label="anchor" href="#data-raw"></a>
 </h3>
 <ul>
 <li><p>00_Downolad_Data.R: This script gatters site infos and fullyearsequences from FluxDataKit. In a next step, needed Value from CTI is extracted and finally merged and written into the df_sites.csv file which will be stored in the /data folder.</p></li>
@@ -134,10 +141,31 @@ analysis/
 </ul>
 </div>
 <div class="section level3">
-<h3 id="data-1">data<a class="anchor" aria-label="anchor" href="#data-1"></a>
+<h3 id="data-1">/data<a class="anchor" aria-label="anchor" href="#data-1"></a>
 </h3>
 <ul>
-<li>01_Mean-Table.R: The daily FluxDataKit data is loaded. With the function</li>
+<li>01_Mean-Table.R: The daily FluxDataKit data is loaded. With the function <code>fun_read_onesite()</code>entries matching <code>FLX_&lt;sitename&gt;_FLUXDATAKIT_FULLSET_DD*</code> are read from the CSV and tagged with the sitename. looping over all sitenames in <code>df_sites$sitename</code>, purr::map then combines them into the nex dataframe <code>daily_data</code>.</li>
+</ul>
+<p>functions for converting latent energy to evapotranspiration are execuded.</p>
+<p>having mass flux in mm day-1, final values of precipitation <code>prec</code>, actual evapotranspiration <code>aet</code>, corrected aet <code>aet_corr</code>, each with and without condensation, and potential evapotranspration <code>pet</code> are joined to the main dataframe df_sites.csv</p>
+<ul>
+<li>02_Budyko.R: Here, the Budyko by Fu (1981) equations are introduced. For each scenario, the new dataframe <code>df_budyko</code> transmutes the variables of precipitation and actual aswell as potential evapotranspiration.</li>
+</ul>
+<p>finally, the residuals of the actual evapotranspiration from the theoretical (potential) evapotraspiration in the Budyko framework can be calculated, which delivers a value for each scenario.</p>
+</div>
+<div class="section level3">
+<h3 id="analysis">/analysis<a class="anchor" aria-label="anchor" href="#analysis"></a>
+</h3>
+<ul>
+<li>00_Budyko-Plots.R: The aim of this script is the visualization of the scenarios. In this sort, the plotting of the residuals in the in the Budyko framework and according histogram are the output of this script.</li>
+</ul>
+<p>see:</p>
+<pre><code>analysis/
+   ├─ pics/
+      ├─ Budyko_Comparison_ALL.png
+      ├─ Budyko_Residuals_ALL.png</code></pre>
+<ul>
+<li>01_Aridity-Plots.R:</li>
 </ul>
 </div>
 </div>
