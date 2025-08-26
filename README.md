@@ -4,12 +4,19 @@ This project uses Eddy Covariance FluxDataKit, Condensation, Soil Thickness Data
 Compound Topographic Index (CTI) Data to explain deviations of high aridity in 
 combination with high actual evapotranspiration from the theoretical Budyko framework.
 
+Scenarios: in order to compare different impacts of condensation (with or without) and 
+letant energy (corrected or not), 4 scenarios are distinguished:
+
+- without condensation + gap filled latent energy
+- wihtout condensation + corrected latent energy
+- with condensation + gap filled latent energy
+- with condensation + corrected latent energy
 
 
 ## Data 
 
 ### FluxDataKit
-The FLuxDataKit (version 3.4) provides flux tower records from [Zenodo](https://doi.org/10.5281/zenodo.10885933)**  and delivers half hourly and 
+The FLuxDataKit (version 3.4) provides flux tower records from [Zenodo](https://doi.org/10.5281/zenodo.10885933) and delivers half hourly and 
 daily data from PLUMBER2 (Ukkola, 2021), Ameriflux (Ameriflux, 2023; Pastorello, 2020), ICOS
 Drought2018 (ICOS, 2018), ICOS WarmWinter2020 (ICOS, 2020).
 The data is available for each site.
@@ -56,7 +63,7 @@ path to file:
 
 
 ## Structure
-This project is structured as followed and must be run in sequenced order:
+This project is structured as followed and shall be run in sequenced order:
 
 ```
 data-raw/
@@ -80,7 +87,7 @@ analysis/
 
 
 
-### data-raw
+### /data-raw
 
 - 00_Downolad_Data.R:
 This script gatters site infos and fullyearsequences from FluxDataKit.
@@ -91,7 +98,45 @@ the df_sites.csv file which will be stored in the /data folder.
 Values of condensation are extracted and written into df_cond_mean_ann_2.csv.
 finally, these values are joined into the df_sites.csv file.
 
-### data
+### /data
 
 - 01_Mean-Table.R:
-The daily FluxDataKit data is loaded. With the function 
+The daily FluxDataKit data is loaded. With the function `fun_read_onesite()`entries matching 
+`FLX_<sitename>_FLUXDATAKIT_FULLSET_DD*` are read from the CSV and tagged with the sitename.
+looping over all sitenames in `df_sites$sitename`, purr::map then combines them into the nex dataframe 
+`daily_data`.
+
+functions for converting latent energy to evapotranspiration are execuded.
+
+having mass flux in mm day-1, final values of precipitation `prec`, actual evapotranspiration `aet`,
+corrected aet `aet_corr`, each with and without condensation, and potential evapotranspration `pet`
+are joined to the main dataframe df_sites.csv
+
+
+- 02_Budyko.R:
+Here, the Budyko by Fu (1981) equations are introduced. For each scenario, the new dataframe `df_budyko`
+transmutes the variables of precipitation and actual aswell as potential evapotranspiration.
+
+finally, the residuals of the actual evapotranspiration from the theoretical (potential)
+evapotraspiration in the Budyko framework can be calculated, which delivers a value for each scenario.
+
+
+
+
+### /analysis
+
+- 00_Budyko-Plots.R:
+The aim of this script is the visualization of the scenarios. 
+In this sort, the plotting of the residuals in the in the Budyko framework and
+according histogram are the output of this script.
+
+see: 
+```
+analysis/
+   ├─ pics/  
+      ├─ Budyko_Comparison_ALL.png
+      ├─ Budyko_Residuals_ALL.png
+```
+
+
+- 01_Aridity-Plots.R:
