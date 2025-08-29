@@ -126,10 +126,9 @@ data/
 analysis/
    ├─ 00_Budyko_Plots.R
    ├─ 01_Aridity_Plots.R
-   ├─ 02_CTI_Plots.R
-   ├─ 03_Site-Characteristics.R
-   ├─ 04_Statistics.R
-   ├─ 05_RandomForest_Model.R
+   ├─ 02_Site-Characteristics.R
+   ├─ 03_Statistics.R
+   ├─ 04_RandomForest_Model.R
    ├─ pics/     #folder for outputs
    ├─ tables/   #folder for outputs</code></pre>
 <div class="section level3">
@@ -165,8 +164,42 @@ analysis/
       ├─ Budyko_Comparison_ALL.png
       ├─ Budyko_Residuals_ALL.png</code></pre>
 <ul>
-<li>01_Aridity-Plots.R:</li>
+<li>01_Aridity-Plots.R: In order to filter out arid and semi-arid as well as high cti, the data is plit into quintiles.</li>
 </ul>
+<p>Based on the PET/P ratio, following splitting is defined for aridity: <code>H (Humid): PET/P &lt; 1</code> <code>SH (Semi-humid): 1 ≤ PET/P &lt; 2</code> <code>SA (Semi-arid): 2 ≤ PET/P &lt; 4</code> <code>A (Arid): PET/P ≥ 4</code></p>
+<p>CTI is plit into quintiles as followed: <code>Very Low</code> <code>Low</code> <code>Medium</code> <code>High</code> <code>Very High</code></p>
+<p>In this sort, <code>aridity_class_nocond</code>, <code>aridity_class</code>, and <code>cti_class</code> are the objects for the use of the extraction of the Fluxnet sites with high aridity and high CTI.</p>
+<p>The outputs are:</p>
+<pre><code>analysis/
+   ├─ pics/
+      ├─ AI_Boxplot_ALL.png
+      ├─ Heatmap_ALL.png</code></pre>
+<ul>
+<li>02_Site-Characteristics.R: This script includes high CTI and aridity in a diagram showing the degree of deviations from Budyko. Also, site information (coordinates) with soil thickness data from Pelletier et al. (2016) is linked and integrated to result in two excel tables. Here, in addition to high CTI and aridity, soil thickness expands the dataset.</li>
+</ul>
+<p>The data is merged into <code>df_budyko</code></p>
+<pre><code>analysis/
+   ├─ pics/
+      ├─ AI_CTI_Diagram_ALL.png
+      ├─ Pelletier_LE_F_MDS.png
+      ├─ Pelletier_LE_CORR.png
+   ├─ tables/
+      ├─ table_topsites.xlsx
+      ├─ table_topsites_corr.xlsx</code></pre>
+<ul>
+<li>03_Statistics.R: Here, the linear model statistical analysis is executed for the estimation of coefficients with gap-filled and corrected latent energy.</li>
+</ul>
+<pre><code>analysis/
+   ├─ pics/
+      ├─ stat_lm_coefficients.png
+      ├─ stat_lm_coefficients_corr.png
+      ├─
+      </code></pre>
+<ul>
+<li>04_RandomForest_Model.R:</li>
+</ul>
+<p>To visualize the distribution of R² and RMSE, bowplots show the behavior of the different predictors (CTI, thickness and landcovertype). With the help of random forest outputs,</p>
+<p>stat_rf_vip.png stat_rf_vip_corr.png stat_rf_comparison_ALL.png</p>
 </div>
 </div>
 </div>
