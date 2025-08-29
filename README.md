@@ -4,7 +4,7 @@ This project uses Eddy Covariance FluxDataKit, Condensation, Soil Thickness Data
 Compound Topographic Index (CTI) Data to explain deviations of high aridity in 
 combination with high actual evapotranspiration from the theoretical Budyko framework.
 
-Scenarios: in order to compare different impacts of condensation (with or without) and 
+### Scenarios: in order to compare different impacts of condensation (with or without) and 
 letant energy (corrected or not), 4 scenarios are distinguished:
 
 - without condensation + gap filled latent energy
@@ -201,8 +201,6 @@ analysis/
    ├─ pics/  
       ├─ stat_lm_coefficients.png
       ├─ stat_lm_coefficients_corr.png
-      ├─ 
-      
 ```      
       
 - 04_RandomForest_Model.R:
@@ -211,8 +209,14 @@ To visualize the distribution of R² and RMSE, bowplots show the behavior of the
 thickness and landcovertype). With the help of random forest outputs, 
 
 
+```
+analysis/
+   ├─ pics/  
+      ├─ stat_rf_vip.png
+      ├─ stat_rf_vip_corr.png
+      ├─ stat_rf_comparison_ALL.png
+```   
 
 
-stat_rf_vip.png
-stat_rf_vip_corr.png
-stat_rf_comparison_ALL.png
+
+
