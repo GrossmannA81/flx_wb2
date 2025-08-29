@@ -30,8 +30,17 @@ bud_p2 <- ggplot(df_budyko, aes(x = pet_p_cond, y = aet_p_cond)) +
   geom_hline(yintercept = 1, linetype = "dotted") +
   theme_classic() +
   xlim(0, 5) + ylim(0, 5) +
-  labs(title = "Cond | LE_F_MDS", x = "PET/P", y = "AET/P")
+  labs(title = "Cond | LE_F_MDS", x = "PET/P", y = "AET/P")+
 
+  #Highlithing top sites for this scenarios in presentation:
+# geom_point(
+#   data = subset(df_budyko, sitename %in% c("US-xRM", "US-A74","US-xNG")),
+#   aes(x = pet_p_cond, y = aet_p_cond),
+#   color = "red",
+#   size = 2
+# )
+#
+# plot(bud_p2)
 
 
 # Plot 3: No Condensation and LE_CORR
@@ -54,9 +63,16 @@ bud_p4 <- ggplot(df_budyko, aes(x = pet_p_cond, y = aet_corr_p_cond)) +
   geom_hline(yintercept = 1, linetype = "dotted") +
   theme_classic() +
   xlim(0, 5) + ylim(0, 5) +
-  labs(title = "Cond | LE_CORR", x = "PET/P", y = "AET/P")
+  labs(title = "Cond | LE_CORR", x = "PET/P", y = "AET/P")+
 
+# geom_point(
+#   data = subset(df_budyko, sitename %in% c("ES-Abr")),
+#   aes(x = pet_p_cond, y = aet_p_cond),
+#   color = "red",
+#   size = 2
+# )
 
+# plot(bud_p4)
 
 bud_all <- plot_grid(bud_p1, bud_p3, bud_p2, bud_p4, ncol = 2)
 
@@ -77,7 +93,7 @@ bud_all_with_title <- cowplot::plot_grid(
 )
 
 
-print(bud_all_with_title)
+# print(bud_all_with_title)
 
 
 ggsave(
@@ -153,34 +169,34 @@ ggsave(
 
 ## Statistical Summaryof Residuals:##
 
-
-library(dplyr)
-library(tibble)
-install.packages("moments")
-library(moments)
-library(broom)
-library(tidyr)
-install.packages("writexl")
-library(writexl)
-
-# Create a long-format residuals table
-df_residuals_long <- df_budyko |>
-  select(res, res_corr, res_cond, res_corr_cond) |>
-  pivot_longer(cols = everything(), names_to = "variant", values_to = "residual")
-
-# Summarise each variant
-bud_summary_table <- df_residuals_long |>
-  group_by(variant) |>
-  summarise(
-    Mean     = round(mean(residual, na.rm = TRUE), 4),
-    SD       = round(sd(residual, na.rm = TRUE), 4),
-    Median   = round(median(residual, na.rm = TRUE), 4),
-    IQR      = round(IQR(residual, na.rm = TRUE), 4),
-    Skewness = round(skewness(residual, na.rm = TRUE), 4),
-    Shapiro_p = round(shapiro.test(residual)$p.value, 4)
-  )
-
-print(bud_summary_table)
+#
+# library(dplyr)
+# library(tibble)
+# install.packages("moments")
+# library(moments)
+# library(broom)
+# library(tidyr)
+# install.packages("writexl")
+# library(writexl)
+#
+# # Create a long-format residuals table
+# df_residuals_long <- df_budyko |>
+#   select(res, res_corr, res_cond, res_corr_cond) |>
+#   pivot_longer(cols = everything(), names_to = "variant", values_to = "residual")
+#
+# # Summarise each variant
+# bud_summary_table <- df_residuals_long |>
+#   group_by(variant) |>
+#   summarise(
+#     Mean     = round(mean(residual, na.rm = TRUE), 4),
+#     SD       = round(sd(residual, na.rm = TRUE), 4),
+#     Median   = round(median(residual, na.rm = TRUE), 4),
+#     IQR      = round(IQR(residual, na.rm = TRUE), 4),
+#     Skewness = round(skewness(residual, na.rm = TRUE), 4),
+#     Shapiro_p = round(shapiro.test(residual)$p.value, 4)
+#   )
+#
+# print(bud_summary_table)
 
 
 
@@ -194,5 +210,5 @@ print(bud_summary_table)
 # 4 res_corr_cond -0.0076 0.300 -0.0583 0.277     1.43         0
 
 
-write_xlsx(bud_summary_table, path = "analysis/tables/bud_summary_table.xlsx")
+# write_xlsx(bud_summary_table, path = "analysis/tables/bud_summary_table.xlsx")
 

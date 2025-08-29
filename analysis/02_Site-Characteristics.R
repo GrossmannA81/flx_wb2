@@ -77,7 +77,7 @@ print(gg_cti_ai_combined)
 # Save plot
 ggsave(
   filename = here::here("analysis/pics/AI_CTI_Diagram_ALL.png"),
-  plot = gg_cti_ai_diagram,
+  plot = gg_cti_ai_combined,
   width = 10,
   height = 6
 )
@@ -150,18 +150,20 @@ library(writexl)
 
 df_excel <- df_excel |>
   filter(
-    cti_class %in% c("Medium", "High", "Very High"),
-    aridity_class %in% c("SA", "A"),
+    CTI_Class %in% c("Medium", "High", "Very High"),
+    Aridity %in% c("SA", "A"),
     res_cond > 0,
   ) |>
   select(
-    Site = sitename,
+    sitename,
     LCT = igbp_land_use,
     CTI = cti,
     Res = res_cond,
     Aridity = aridity_class,
     CTI_Class = cti_class,
-    Thk = thickness
+    Thk = thickness,
+    lon,
+    lat
   )|>
   arrange(desc(CTI))
 
@@ -178,8 +180,8 @@ write_xlsx(
 
 df_excel_corr <- df_excel_corr |>
   filter(
-    cti_class %in% c("Medium", "High", "Very High"),
-    aridity_class %in% c("SA", "A"),
+    CTI_Class %in% c("Medium", "High", "Very High"),
+    Aridity %in% c("SA", "A"),
     res_corr_cond > 0,
   ) |>
   select(
@@ -259,7 +261,7 @@ ggsave(
 #Plot LE_CORR::
 
 ggplot() +
-  geom_raster(data = df_rast, aes(x = x, y = y, fill = thickness)) +
+  geom_raster(data = df_rast, aes(x = x, y = y, fill = Thk)) +
   scale_fill_viridis_c(na.value = "transparent") +
   geom_point(data = df_excel_corr, aes(x = lon, y = lat), color = "red", size = 1.5) +
   geom_text_repel(
@@ -299,7 +301,7 @@ ggsave(
 
 
 
-# plot(rast_pelletier_avg, main = "High Aridity and CTI Sites - LE_CORR")
+plot(rast_pelletier_avg, main = "High Aridity and CTI Sites - LE_CORR")
 # points(df_excel_corr$lon, df_excel_corr$lat, pch = 19, col = "red")
 
 

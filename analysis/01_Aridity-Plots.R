@@ -2,12 +2,12 @@
 library(dplyr)
 library(cowplot)
 
-df_budyko <- df_budyko |>
-  left_join(
-    df_sites |>
-      select(sitename, cti, igbp_land_use, canopy_height, whc ),
-    by = "sitename"
-  )
+# df_budyko <- df_budyko |>
+#   left_join(
+#     df_sites |>
+#       select(sitename, cti, igbp_land_use, canopy_height, whc ),
+#     by = "sitename"
+#   )
 
 # Berechne CTI-Quantile (5 Klassen)
 cti_quants <- quantile(df_budyko$cti, probs = seq(0, 1, length.out = 6), na.rm = TRUE)
@@ -213,76 +213,7 @@ ggsave(here::here("analysis/pics/AI_Boxplot_ALL.png"))
 
 
 
-####-------------------------------Boxplots high and low AI and CTI-----------------------------------------------------------
 
-
-#
-#   ai_cti_plot <- df_budyko |>
-#     filter(cti_class %in% c("CTI Low", "CTI High")) |>
-#     mutate(
-#       aridity_class_simple = case_when(
-#         aridity_class %in% c("H", "SH") ~ "AI Low",
-#         aridity_class %in% c("SA", "A") ~ "AI High"
-#       ),
-#       group_simple = paste(cti_class, aridity_class_simple, sep = " & ")
-#       )
-#
-#
-# ai_cti <- ggplot( ai_cti_plot, aes(x = group_simple, y = res_cond, fill = group_simple)) +
-#   geom_boxplot(outlier.shape = NA, alpha = 0.7) +
-#   geom_jitter(width = 0.2, alpha = 0.4, size = 1, color = "black") +
-#   theme_classic() +
-#   labs(
-#     x = "CTI and Aridity Groups",
-#     y = expression(epsilon * "'"),
-#     title = "Budyko Deviation by CTI and Aridity (PET/P)"
-#   ) +
-#   scale_fill_brewer(palette = "Set2") +
-#   theme(axis.text.x = element_text(hjust = 1))
-#
-#
-#
-# ai_cti_corr <- ggplot( ai_cti_plot, aes(x = group_simple, y = res_corr_cond, fill = group_simple)) +
-#   geom_boxplot(outlier.shape = NA, alpha = 0.7) +
-#   geom_jitter(width = 0.2, alpha = 0.4, size = 1, color = "black") +
-#   theme_classic() +
-#   labs(
-#     x = "CTI and Aridity Groups",
-#     y = expression(epsilon * "'"),
-#     title = "Budyko Deviation by CTI and Aridity (PET/P)"
-#   ) +
-#   scale_fill_brewer(palette = "Set2") +
-#   theme(axis.text.x = element_text(hjust = 1))
-#
-#
-# plot (ai_cti_corr)
-
-
-
-
-
-##Old:
-#
-#
-#
-# ggplot(df_budyko, aes(x = group, y = res_corr, fill = group)) +
-#   geom_boxplot(outlier.shape = NA, alpha = 0.7) +
-#   geom_jitter(width = 0.2, alpha = 0.4, size = 1, color = "black") +
-#   theme_classic() +
-#   labs(
-#     x = "CTI and Aridity Groups",
-#     y = expression (epsilon * "'"),
-#     title = "Budyko Deviation by CTI and Aridity (PET/P)"
-#   ) +
-#   scale_fill_brewer(palette = "Set2") +
-#   theme(axis.text.x = element_text( hjust = 1))
-#
-# ggsave(
-#   filename = here::here("analysis/pics/BoxPlot_hig_low_variables.png"),
-#   plot = gg_ai_combined,
-#   width = 10,
-#   height = 5
-# )
 
 
 #-------------------------------HEATMAP all sites-----------------------------------------------------------
@@ -467,7 +398,7 @@ print(plot_hm_final)
 
 
 ggsave(
-  filename = here::here("flx_wb2/flx_wb2/analysis/pics/Heatmap_ALL.png"),
+  filename = here::here("analysis/pics/Heatmap_ALL.png"),
   plot = plot_hm_final,
   width = 10,
   height = 5
@@ -477,161 +408,3 @@ ggsave(
 
 
 
-# Heatmap zeichnen
-# gg_cti_heat_custom <- ggplot(df_budyko_binned, aes(
-#   x = aridity_class,
-#   y = cti_class,
-#   fill = mean_res)) +
-#   geom_tile(color = "white") +
-#   geom_text(aes(label = ifelse(count == 0, "NA", count)), color = "black", size = 3) +
-#   scale_fill_gradient2(
-#     low = "darkslategrey",
-#     mid = "beige",
-#     high = "hotpink4",
-#     midpoint = 0,
-#     name = expression(epsilon*"′ (Mean Deviation)"),
-#     limits = c(-0.3, 0.3),
-#     labels = scales::label_number(accuracy = 0.1),
-#     breaks = seq(-0.3, 0.3, by = 0.1),
-#     na.value = "grey90"  # NA-Zellen grau einfärben
-#   ) +
-#   labs(
-#     x = "Aridity Class (PET/P Condensed)",
-#     y = "CTI Class",
-#     title = "Mean Residuals by Aridity and Topography"
-#   ) +
-#   theme_classic() +
-#   theme(
-#     legend.position = "right",
-#     axis.text.x = element_text(angle = 0)
-#   )
-#
-# gg_cti_heat_custom
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-# df_budyko_binned <- df_budyko |>
-#   mutate(
-#     cti_bin = factor(cti_class, levels = c("CTI Low", "CTI Med", "CTI High")),
-#     pet_p_bin = aridity_class
-#   ) |>
-#   group_by(cti_bin, pet_p_bin) |>
-#   summarise(
-#     mean_res = mean(delta_cond, na.rm = TRUE),
-#     count = n(),
-#     .groups = "drop"
-#   ) |>
-#   complete(cti_bin, pet_p_bin, fill = list(mean_res = NA, count = 0))
-#
-# gg_cti_heat_custom <- ggplot(df_budyko_binned, aes(
-#   x = aridity_class,
-#   y = cti_class,
-#   fill = mean_res)) +
-#   geom_tile(color = "white") +
-#   geom_text(aes(label = count), color = "black", size = 3) +
-#   common_heatmap_scale +
-#   labs(
-#     x = "Aridity Class (PET/P Condensed)",
-#     y = "CTI Class",
-#     title = "Mean Residuals by Aridity and Topography"
-#   ) +
-#   theme_classic() +
-#   theme(
-#     legend.position = "right",
-#     axis.text.x = element_text(angle = 0)
-#   )
-#
-#
-# gg_cti_heat_custom
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-# df_budyko_binned <- df_budyko |>
-#   mutate(
-#     cti_bin = cut(
-#       cti,
-#       breaks = quantile(cti, probs = seq(0, 1, 1/5), na.rm = TRUE),
-#       include.lowest = TRUE
-#     ),
-#     pet_p_bin = cut(
-#       pet_p,
-#       breaks = {
-#         b<- quantile(pet_p, probs = seq(0, 1, 1/5), na.rm = TRUE)
-#         b[length(b)] <- 4.12
-#         c(b[-length(b)], Inf)
-#       },
-#       include.lowest = TRUE)
-#   ) |>
-#   group_by(cti_bin, pet_p_bin) |>
-#   summarise(
-#     mean_res = mean(delta_cond, na.rm = TRUE),
-#     count = n(),
-#     .groups = "drop"
-#   )
-#
-#
-# common_heatmap_scale <- scale_fill_gradient2(
-#   low = "darkslategrey",
-#   mid = "beige",
-#   high = "hotpink4",
-#   midpoint = 0,
-#   name = expression(epsilon*"′ (Mean Deviation)"),
-#   limits = c(-0.3, 0.3),
-#   labels = scales::label_number(accuracy = 0.1),
-#   breaks = seq(-0.3, 0.3, by = 0.1)
-# )
-#
-#
-# gg_cti_heat_custom <- df_budyko_binned |>
-#   ggplot(
-#     aes(
-#       x = pet_p_bin,
-#       y = cti_bin,
-#       fill = mean_res)) +
-#   geom_tile(color = "white") +
-#   geom_text(aes(label = count), color = "black", size = 3) +
-#   common_heatmap_scale +
-#   labs(
-#     x = "Aridity Classes (PET/P)",
-#     y = "CTI Classes",
-#     title = "Residuals vs. Aridity and Topography"
-#   ) +
-#   theme_classic() +
-#   theme(
-#     legend.position = "right",
-#     axis.text.x = element_text(angle = 0)
-#   )
-#
-# gg_cti_heat_custom
-#
