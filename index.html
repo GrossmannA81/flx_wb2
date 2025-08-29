@@ -72,13 +72,17 @@
 <div class="page-header"><h1 id="actual-evapotranspiration-in-arid-and-semi-arid-regions">Actual Evapotranspiration in Arid and Semi-arid Regions<a class="anchor" aria-label="anchor" href="#actual-evapotranspiration-in-arid-and-semi-arid-regions"></a>
 </h1></div>
 <p>This project uses Eddy Covariance FluxDataKit, Condensation, Soil Thickness Data from Pelletier and Compound Topographic Index (CTI) Data to explain deviations of high aridity in combination with high actual evapotranspiration from the theoretical Budyko framework.</p>
-<p>Scenarios: in order to compare different impacts of condensation (with or without) and letant energy (corrected or not), 4 scenarios are distinguished:</p>
+<div class="section level3">
+<h3 id="scenarios-in-order-to-compare-different-impacts-of-condensation-with-or-without-and">Scenarios: in order to compare different impacts of condensation (with or without) and<a class="anchor" aria-label="anchor" href="#scenarios-in-order-to-compare-different-impacts-of-condensation-with-or-without-and"></a>
+</h3>
+<p>letant energy (corrected or not), 4 scenarios are distinguished:</p>
 <ul>
 <li>without condensation + gap filled latent energy</li>
 <li>wihtout condensation + corrected latent energy</li>
 <li>with condensation + gap filled latent energy</li>
 <li>with condensation + corrected latent energy</li>
 </ul>
+</div>
 <div class="section level2">
 <h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
 </h2>
@@ -192,14 +196,16 @@ analysis/
 <pre><code>analysis/
    ├─ pics/
       ├─ stat_lm_coefficients.png
-      ├─ stat_lm_coefficients_corr.png
-      ├─
-      </code></pre>
+      ├─ stat_lm_coefficients_corr.png</code></pre>
 <ul>
 <li>04_RandomForest_Model.R:</li>
 </ul>
 <p>To visualize the distribution of R² and RMSE, bowplots show the behavior of the different predictors (CTI, thickness and landcovertype). With the help of random forest outputs,</p>
-<p>stat_rf_vip.png stat_rf_vip_corr.png stat_rf_comparison_ALL.png</p>
+<pre><code>analysis/
+   ├─ pics/
+      ├─ stat_rf_vip.png
+      ├─ stat_rf_vip_corr.png
+      ├─ stat_rf_comparison_ALL.png</code></pre>
 </div>
 </div>
 </div>
