@@ -139,21 +139,27 @@ analysis/
 <h3 id="data-raw">/data-raw<a class="anchor" aria-label="anchor" href="#data-raw"></a>
 </h3>
 <ul>
-<li><p>00_Downolad_Data.R: This script gatters site infos and fullyearsequences from FluxDataKit. In a next step, needed Value from CTI is extracted and finally merged and written into the df_sites.csv file which will be stored in the /data folder.</p></li>
-<li><p>01_P_Model_RSOFUN.R: Values of condensation are extracted and written into df_cond_mean_ann_2.csv. finally, these values are joined into the df_sites.csv file.</p></li>
+<li>00_Downolad_Data.R:</li>
 </ul>
+<p>This script gatters site infos and fullyearsequences from FluxDataKit. In a next step, needed Value from CTI is extracted and finally merged and written into the df_sites.csv file which will be stored in the /data folder.</p>
+<ul>
+<li>01_P_Model_RSOFUN.R:</li>
+</ul>
+<p>Values of condensation are extracted and written into df_cond_mean_ann_2.csv. finally, these values are joined into the df_sites.csv file.</p>
 </div>
 <div class="section level3">
 <h3 id="data-1">/data<a class="anchor" aria-label="anchor" href="#data-1"></a>
 </h3>
 <ul>
-<li>01_Mean-Table.R: The daily FluxDataKit data is loaded. With the function <code>fun_read_onesite()</code>entries matching <code>FLX_&lt;sitename&gt;_FLUXDATAKIT_FULLSET_DD*</code> are read from the CSV and tagged with the sitename. looping over all sitenames in <code>df_sites$sitename</code>, purr::map then combines them into the nex dataframe <code>daily_data</code>.</li>
+<li>01_Mean-Table.R:</li>
 </ul>
+<p>The daily FluxDataKit data is loaded. With the function <code>fun_read_onesite()</code>entries matching <code>FLX_&lt;sitename&gt;_FLUXDATAKIT_FULLSET_DD*</code> are read from the CSV and tagged with the sitename. looping over all sitenames in <code>df_sites$sitename</code>, purr::map then combines them into the nex dataframe <code>daily_data</code>.</p>
 <p>functions for converting latent energy to evapotranspiration are execuded.</p>
 <p>having mass flux in mm day-1, final values of precipitation <code>prec</code>, actual evapotranspiration <code>aet</code>, corrected aet <code>aet_corr</code>, each with and without condensation, and potential evapotranspration <code>pet</code> are joined to the main dataframe df_sites.csv</p>
 <ul>
-<li>02_Budyko.R: Here, the Budyko by Fu (1981) equations are introduced. For each scenario, the new dataframe <code>df_budyko</code> transmutes the variables of precipitation and actual aswell as potential evapotranspiration.</li>
+<li>02_Budyko.R:</li>
 </ul>
+<p>Here, the Budyko by Fu (1981) equations are introduced. For each scenario, the new dataframe <code>df_budyko</code> transmutes the variables of precipitation and actual aswell as potential evapotranspiration.</p>
 <p>finally, the residuals of the actual evapotranspiration from the theoretical (potential) evapotraspiration in the Budyko framework can be calculated, which delivers a value for each scenario.</p>
 </div>
 <div class="section level3">
@@ -168,8 +174,9 @@ analysis/
       ├─ Budyko_Comparison_ALL.png
       ├─ Budyko_Residuals_ALL.png</code></pre>
 <ul>
-<li>01_Aridity-Plots.R: In order to filter out arid and semi-arid as well as high cti, the data is plit into quintiles.</li>
+<li>01_Aridity-Plots.R:</li>
 </ul>
+<p>In order to filter out arid and semi-arid as well as high cti, the data is plit into quintiles.</p>
 <p>Based on the PET/P ratio, following splitting is defined for aridity: <code>H (Humid): PET/P &lt; 1</code> <code>SH (Semi-humid): 1 ≤ PET/P &lt; 2</code> <code>SA (Semi-arid): 2 ≤ PET/P &lt; 4</code> <code>A (Arid): PET/P ≥ 4</code></p>
 <p>CTI is plit into quintiles as followed: <code>Very Low</code> <code>Low</code> <code>Medium</code> <code>High</code> <code>Very High</code></p>
 <p>In this sort, <code>aridity_class_nocond</code>, <code>aridity_class</code>, and <code>cti_class</code> are the objects for the use of the extraction of the Fluxnet sites with high aridity and high CTI.</p>
@@ -179,8 +186,9 @@ analysis/
       ├─ AI_Boxplot_ALL.png
       ├─ Heatmap_ALL.png</code></pre>
 <ul>
-<li>02_Site-Characteristics.R: This script includes high CTI and aridity in a diagram showing the degree of deviations from Budyko. Also, site information (coordinates) with soil thickness data from Pelletier et al. (2016) is linked and integrated to result in two excel tables. Here, in addition to high CTI and aridity, soil thickness expands the dataset.</li>
+<li>02_Site-Characteristics.R:</li>
 </ul>
+<p>This script includes high CTI and aridity in a diagram showing the degree of deviations from Budyko. Also, site information (coordinates) with soil thickness data from Pelletier et al. (2016) is linked and integrated to result in two excel tables. Here, in addition to high CTI and aridity, soil thickness expands the dataset.</p>
 <p>The data is merged into <code>df_budyko</code></p>
 <pre><code>analysis/
    ├─ pics/
@@ -191,8 +199,9 @@ analysis/
       ├─ table_topsites.xlsx
       ├─ table_topsites_corr.xlsx</code></pre>
 <ul>
-<li>03_Statistics.R: Here, the linear model statistical analysis is executed for the estimation of coefficients with gap-filled and corrected latent energy.</li>
+<li>03_Statistics.R:</li>
 </ul>
+<p>Here, the linear model statistical analysis is executed for the estimation of coefficients with gap-filled and corrected latent energy.</p>
 <pre><code>analysis/
    ├─ pics/
       ├─ stat_lm_coefficients.png
