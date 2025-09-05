@@ -90,17 +90,20 @@ analysis/
 ### /data-raw
 
 - 00_Downolad_Data.R:
+
 This script gatters site infos and fullyearsequences from FluxDataKit.
 In a next step, needed Value from CTI is extracted and finally merged and written into 
 the df_sites.csv file which will be stored in the /data folder.
 
 - 01_P_Model_RSOFUN.R:
+
 Values of condensation are extracted and written into df_cond_mean_ann_2.csv.
 finally, these values are joined into the df_sites.csv file.
 
 ### /data
 
 - 01_Mean-Table.R:
+
 The daily FluxDataKit data is loaded. With the function `fun_read_onesite()`entries matching 
 `FLX_<sitename>_FLUXDATAKIT_FULLSET_DD*` are read from the CSV and tagged with the sitename.
 looping over all sitenames in `df_sites$sitename`, purr::map then combines them into the nex dataframe 
@@ -114,6 +117,7 @@ are joined to the main dataframe df_sites.csv
 
 
 - 02_Budyko.R:
+
 Here, the Budyko by Fu (1981) equations are introduced. For each scenario, the new dataframe `df_budyko`
 transmutes the variables of precipitation and actual aswell as potential evapotranspiration.
 
@@ -140,6 +144,7 @@ analysis/
 
 
 - 01_Aridity-Plots.R:
+
 In order to filter out arid and semi-arid as well as high cti, the data is plit into quintiles.
 
 Based on the PET/P ratio, following splitting is defined for aridity:
@@ -168,6 +173,7 @@ analysis/
 
 
 - 02_Site-Characteristics.R:
+
 This script includes high CTI and aridity in a diagram showing the degree of deviations from Budyko.
 Also, site information (coordinates) with soil thickness data from 
 Pelletier et al. (2016) is linked and integrated to result in two excel tables. Here, in addition 
@@ -192,6 +198,7 @@ analysis/
 
 
 - 03_Statistics.R:
+
 Here, the linear model statistical analysis is executed for the estimation of coefficients with gap-filled
 and corrected latent energy. 
 
