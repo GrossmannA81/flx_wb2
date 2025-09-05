@@ -219,4 +219,33 @@ analysis/
 
 
 
+## Bibliography
 
+- Budyko, M.I. Climate and Life, New York, Academic Press,1974.
+
+- Fan, Y., Clark, M., Lawrence, D. M., Swenson, S., Band, L. E., Brantley, S. L., et al.: Hillslope hydrology in global change research
+and Earth system modeling, Water Resour. Res., 55, 1737–1772, https://doi.org/10.1029/2018WR023903, 2019.
+
+- Fu, B.: On the calculation of the evaporation from land surface, Chin. J. Atmos. Sci., 5, 23–31, 1981.
+
+- Marthews, T. R., Dadson, S. J., Lehner, B., Abele, S., and Gedney, N.: High-resolution global topographic index values for use
+in large-scale hydrological modelling, Hydrol. Earth Syst. Sci., 19, 91–104, https://doi.org/10.5194/hess-19-91-2015, 2015.
+
+- Pastorello, G., Trotta, C., Canfora, E., Chu, H., Christianson, D., Cheah, Y.-W., Poindexter, C., Chen, J., Elbashandy, A.,
+Humphrey, M., Isaac, P., Polidori, D., Reichstein, M., Ribeca, A., van Ingen, C., Vuichard, N., Zhang, L., Amiro, B., Ammann, C.,
+Arain, M. A., Ardö, J., Arkebauer, T., Arndt, S. K., Arriga, N., Aubinet, et al.: The FLUXNET2015 dataset and the ONEFlux
+processing pipeline for eddy covariance data, Sci. Data, 7, 225, https://doi.org/10.1038/s41597-020-0534-3, 2020.
+
+- Pelletier, J. D., Broxton, P. D., Hazenberg, P., Zeng, X., Troch, P. A., Niu, G., Williams, Z. C., Brunke, M. A., and Gochis, D.: Global
+1-km gridded thickness of soil, regolith, and sedimentary deposit layers, ORNL DAAC, Oak Ridge, Tennessee, USA,
+https://doi.org/10.3334/ORNLDAAC/1304, 2016.
+
+- Stocker, B. D., Wang, H., Smith, N. G., Harrison, S. P., Keenan, T. F., Sandoval, D., Davis, T., and Prentice, I. C.: P-model v1.0:
+an optimality-based light use efficiency model for simulating ecosystem gross primary production, Geosci. Model Dev., 13,
+1545–1581, https://doi.org/10.5194/gmd-13-1545-2020, 2020.
+
+- Ukkola, A.: PLUMBER2: forcing and evaluation datasets for a model intercomparison project for land surface models v1.0,
+University of New South Wales, https://dx.doi.org/10.25914/5fdb0902607e1, 2021.
+
+- Zhang, L., et al.: A rational function approach for estimating mean annual evapotranspiration, Water Resour. Res., 40, 1–14,
+https://doi.org/10.1029/2003WR002710, 2004.
